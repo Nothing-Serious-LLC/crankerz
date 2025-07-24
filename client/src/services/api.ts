@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthResponse, User, LeaderboardEntry, StoreItem, SessionResponse } from '../types';
+import { AuthResponse, User, LeaderboardEntry, StoreItem, SessionResponse, Achievement, AchievementsResponse, Analytics, SocialReactions } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -41,6 +41,35 @@ export const userAPI = {
 export const sessionAPI = {
   addSession: async (notes?: string): Promise<SessionResponse> => {
     const response = await api.post('/sessions', { notes });
+    return response.data;
+  },
+};
+
+// Analytics API
+export const analyticsAPI = {
+  getUserAnalytics: async (): Promise<Analytics> => {
+    const response = await api.get('/analytics');
+    return response.data;
+  },
+};
+
+// Achievement API
+export const achievementAPI = {
+  getAchievements: async (): Promise<AchievementsResponse> => {
+    const response = await api.get('/achievements');
+    return response.data;
+  },
+};
+
+// Social Reactions API
+export const reactionsAPI = {
+  addReaction: async (targetUserId: number, targetType: string, targetId: number, reactionType: string): Promise<{ message: string }> => {
+    const response = await api.post('/reactions', { targetUserId, targetType, targetId, reactionType });
+    return response.data;
+  },
+
+  getReactions: async (targetType: string, targetId: number): Promise<SocialReactions> => {
+    const response = await api.get(`/reactions/${targetType}/${targetId}`);
     return response.data;
   },
 };

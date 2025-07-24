@@ -6,6 +6,7 @@ import { Layout } from './components/Layout/Layout';
 import { Home } from './components/Pages/Home';
 import { Community } from './components/Pages/Community';
 import { Store } from './components/Pages/Store';
+import { Analytics } from './components/Pages/Analytics';
 import './App.css';
 
 const AuthWrapper: React.FC = () => {
@@ -20,7 +21,7 @@ const AuthWrapper: React.FC = () => {
 
 const MainApp: React.FC = () => {
   const { user, isLoading } = useAuth();
-  const [currentTab, setCurrentTab] = useState<'home' | 'community' | 'store'>('home');
+  const [currentTab, setCurrentTab] = useState<'home' | 'analytics' | 'community' | 'store'>('home');
 
   if (isLoading) {
     return (
@@ -46,6 +47,8 @@ const MainApp: React.FC = () => {
     switch (currentTab) {
       case 'home':
         return <Home />;
+      case 'analytics':
+        return <Analytics />;
       case 'community':
         return <Community />;
       case 'store':

@@ -33,6 +33,25 @@ const UserInfo = styled.div`
   gap: 15px;
 `;
 
+const UserDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+`;
+
+const Username = styled.div`
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const LevelInfo = styled.div`
+  font-size: 0.8rem;
+  opacity: 0.8;
+`;
+
 const LogoutButton = styled.button`
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -99,8 +118,8 @@ const NavLabel = styled.span`
 
 interface LayoutProps {
   children: React.ReactNode;
-  currentTab: 'home' | 'community' | 'store';
-  onTabChange: (tab: 'home' | 'community' | 'store') => void;
+  currentTab: 'home' | 'analytics' | 'community' | 'store';
+  onTabChange: (tab: 'home' | 'analytics' | 'community' | 'store') => void;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChange }) => {
@@ -119,12 +138,15 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
       <Header>
         <Logo>🍆 FapTracker</Logo>
         <UserInfo>
-          <span>
-            {getBadges().map((badge: string, index: number) => (
-              <span key={index}>{badge}</span>
-            ))}
-            {user?.username}
-          </span>
+          <UserDetails>
+            <Username>
+              {getBadges().map((badge: string, index: number) => (
+                <span key={index}>{badge}</span>
+              ))}
+              {user?.username}
+            </Username>
+            <LevelInfo>Level {user?.level || 1} • {user?.experience || 0} XP</LevelInfo>
+          </UserDetails>
           <LogoutButton onClick={logout}>Logout</LogoutButton>
         </UserInfo>
       </Header>
@@ -140,6 +162,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
         >
           <NavIcon>🏠</NavIcon>
           <NavLabel>Home</NavLabel>
+        </NavItem>
+        <NavItem 
+          active={currentTab === 'analytics'} 
+          onClick={() => onTabChange('analytics')}
+        >
+          <NavIcon>📊</NavIcon>
+          <NavLabel>Analytics</NavLabel>
         </NavItem>
         <NavItem 
           active={currentTab === 'community'} 

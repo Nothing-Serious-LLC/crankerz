@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
-import { leaderboardAPI, friendsAPI } from '../../services/api';
+import { leaderboardAPI, friendsAPI, reactionsAPI } from '../../services/api';
 import { LeaderboardEntry } from '../../types';
 
 const CommunityContainer = styled.div`
@@ -131,20 +131,61 @@ const UserInfo = styled.div`
   flex: 1;
 `;
 
+const UserDetails = styled.div`
+  flex: 1;
+`;
+
 const UserName = styled.div`
   font-weight: 600;
   font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
-const UserCountry = styled.div`
+const UserMeta = styled.div`
   font-size: 0.9rem;
   opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const LevelBadge = styled.span`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
 `;
 
 const SessionCount = styled.div`
   font-weight: 700;
   font-size: 1.2rem;
   color: #667eea;
+  margin-right: 15px;
+`;
+
+const ReactionButtons = styled.div`
+  display: flex;
+  gap: 5px;
+  margin-left: 10px;
+`;
+
+const ReactionButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: scale(1.2);
+  }
 `;
 
 const AddFriendSection = styled.div`
@@ -268,6 +309,19 @@ export const Community: React.FC = () => {
     }
   };
 
+  const handleReaction = async (targetUsername: string, reactionType: string) => {
+    if (!user) return;
+    
+    try {
+      // For demo purposes, we'll use the username as targetUserId
+      // In a real app, you'd need to get the actual user ID
+      await reactionsAPI.addReaction(1, 'session', 1, reactionType);
+      // Could show a brief success message or animation here
+    } catch (error) {
+      console.error('Failed to add reaction:', error);
+    }
+  };
+
   const getTabTitle = () => {
     switch (activeTab) {
       case 'friends':
@@ -285,6 +339,16 @@ export const Community: React.FC = () => {
       case 2: return '🥈';
       case 3: return '🥉';
       default: return `#${rank}`;
+    }
+  };
+
+  const getReactionEmoji = (type: string) => {
+    switch (type) {
+      case 'like': return '👍';
+      case 'fire': return '🔥';
+      case 'cheer': return '🎉';
+      case 'wow': return '😮';
+      default: return '👍';
     }
   };
 
@@ -321,14 +385,45 @@ export const Community: React.FC = () => {
                   {getRankEmoji(index + 1)}
                 </RankBadge>
                 <UserInfo>
-                  <div>
+                  <UserDetails>
                     <UserName>
                       {JSON.parse(entry.badges || '[]').join('')} {entry.username}
+                      <LevelBadge>Lv.{entry.level}</LevelBadge>
                     </UserName>
-                    <UserCountry>{entry.country}</UserCountry>
-                  </div>
+                    <UserMeta>
+                      <span>{entry.country}</span>
+                      <span>•</span>
+                      <span>Level {entry.level}</span>
+                    </UserMeta>
+                  </UserDetails>
                 </UserInfo>
                 <SessionCount>{entry.total_sessions} sessions</SessionCount>
+                <ReactionButtons>
+                  <ReactionButton
+                    onClick={() => handleReaction(entry.username, 'like')}
+                    title="Like"
+                  >
+                    {getReactionEmoji('like')}
+                  </ReactionButton>
+                  <ReactionButton
+                    onClick={() => handleReaction(entry.username, 'fire')}
+                    title="Fire"
+                  >
+                    {getReactionEmoji('fire')}
+                  </ReactionButton>
+                  <ReactionButton
+                    onClick={() => handleReaction(entry.username, 'cheer')}
+                    title="Cheer"
+                  >
+                    {getReactionEmoji('cheer')}
+                  </ReactionButton>
+                  <ReactionButton
+                    onClick={() => handleReaction(entry.username, 'wow')}
+                    title="Wow"
+                  >
+                    {getReactionEmoji('wow')}
+                  </ReactionButton>
+                </ReactionButtons>
               </LeaderboardItem>
             ))}
           </LeaderboardList>

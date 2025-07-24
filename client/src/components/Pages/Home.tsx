@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
-import { sessionAPI, userAPI } from '../../services/api';
+import { sessionAPI, userAPI, achievementAPI } from '../../services/api';
+import { Achievement } from '../../types';
 
 const HomeContainer = styled.div`
   display: flex;
@@ -10,6 +11,55 @@ const HomeContainer = styled.div`
   gap: 30px;
   max-width: 500px;
   margin: 0 auto;
+`;
+
+const LevelCard = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 25px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+`;
+
+const LevelInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+`;
+
+const LevelBadge = styled.div`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 1.2rem;
+`;
+
+const ExperienceText = styled.div`
+  color: #666;
+  font-size: 0.9rem;
+`;
+
+const ExperienceBar = styled.div`
+  width: 100%;
+  height: 12px;
+  background: #e1e5e9;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
+`;
+
+const ExperienceProgress = styled.div<{ percentage: number }>`
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  width: ${props => props.percentage}%;
+  transition: width 0.5s ease;
+  border-radius: 6px;
 `;
 
 const StatsCard = styled.div`
@@ -139,11 +189,63 @@ const LastSessionText = styled.p`
   margin-top: 15px;
 `;
 
+const RecentAchievements = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 25px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+`;
+
+const AchievementItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const AchievementEmoji = styled.div`
+  font-size: 2rem;
+`;
+
+const AchievementInfo = styled.div`
+  flex: 1;
+`;
+
+const AchievementName = styled.div`
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+`;
+
+const AchievementDescription = styled.div`
+  font-size: 0.9rem;
+  color: #666;
+`;
+
+const AchievementReward = styled.div`
+  background: #667eea;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+`;
+
 export const Home: React.FC = () => {
   const { user, updateUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [canCheckIn, setCanCheckIn] = useState(true);
+  const [recentAchievements, setRecentAchievements] = useState<Achievement[]>([]);
 
   useEffect(() => {
     // Check if user has already checked in today
@@ -156,7 +258,20 @@ export const Home: React.FC = () => {
         setCanCheckIn(false);
       }
     }
+
+    // Load recent achievements
+    loadRecentAchievements();
   }, [user]);
+
+  const loadRecentAchievements = async () => {
+    try {
+      const achievements = await achievementAPI.getAchievements();
+      // Show only the 3 most recent unlocked achievements
+      setRecentAchievements(achievements.unlocked.slice(0, 3));
+    } catch (error) {
+      console.error('Failed to load achievements:', error);
+    }
+  };
 
   const handleCheckIn = async () => {
     if (!canCheckIn) return;
@@ -171,6 +286,9 @@ export const Home: React.FC = () => {
       // Refresh user data
       const updatedUser = await userAPI.getProfile();
       updateUser(updatedUser);
+      
+      // Refresh achievements in case new ones were unlocked
+      loadRecentAchievements();
       
       setCanCheckIn(false);
     } catch (error) {
@@ -191,13 +309,33 @@ export const Home: React.FC = () => {
       "Time to update your stats! 💪",
       "Your bros are waiting! 🔥",
       "Keep the streak alive! ⚡",
-      "Show them who's boss! 👑"
+      "Show them who's boss! 👑",
+      "Level up your game! 🚀",
+      "Earn that XP! 💎"
     ];
     return messages[Math.floor(Math.random() * messages.length)];
   };
 
   return (
     <HomeContainer>
+      <LevelCard>
+        <LevelInfo>
+          <LevelBadge>Level {user?.level || 1}</LevelBadge>
+          <ExperienceText>{user?.experience || 0} XP</ExperienceText>
+        </LevelInfo>
+        
+        {user?.levelProgress && (
+          <>
+            <ExperienceBar>
+              <ExperienceProgress percentage={user.levelProgress.percentage} />
+            </ExperienceBar>
+            <ExperienceText>
+              {user.levelProgress.current} / {user.levelProgress.needed} XP to next level
+            </ExperienceText>
+          </>
+        )}
+      </LevelCard>
+
       <StatsCard>
         <WelcomeText>Welcome back, {user?.username}! 👋</WelcomeText>
         <StatsGrid>
@@ -249,6 +387,22 @@ export const Home: React.FC = () => {
           </LastSessionText>
         )}
       </CheckInSection>
+
+      {recentAchievements.length > 0 && (
+        <RecentAchievements>
+          <h3 style={{ marginBottom: '20px', color: '#333' }}>🏆 Recent Achievements</h3>
+          {recentAchievements.map((achievement) => (
+            <AchievementItem key={achievement.id}>
+              <AchievementEmoji>{achievement.badge_emoji}</AchievementEmoji>
+              <AchievementInfo>
+                <AchievementName>{achievement.name}</AchievementName>
+                <AchievementDescription>{achievement.description}</AchievementDescription>
+              </AchievementInfo>
+              <AchievementReward>+{achievement.experience_reward} XP</AchievementReward>
+            </AchievementItem>
+          ))}
+        </RecentAchievements>
+      )}
     </HomeContainer>
   );
 };

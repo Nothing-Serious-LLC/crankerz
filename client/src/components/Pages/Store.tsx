@@ -33,14 +33,34 @@ const StoreSubtitle = styled.p`
   margin-bottom: 20px;
 `;
 
-const PointsDisplay = styled.div`
+const UserStats = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+`;
+
+const StatItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+`;
+
+const StatValue = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 15px 30px;
-  border-radius: 50px;
+  padding: 10px 20px;
+  border-radius: 25px;
   font-size: 1.2rem;
   font-weight: 600;
-  display: inline-block;
+`;
+
+const StatLabel = styled.div`
+  color: #666;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const TabsContainer = styled.div`
@@ -48,12 +68,13 @@ const TabsContainer = styled.div`
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 10px;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 `;
 
 const Tab = styled.button<{ active: boolean }>`
-  flex: 1;
   padding: 15px;
   border: none;
   border-radius: 15px;
@@ -75,7 +96,7 @@ const ItemsGrid = styled.div`
   gap: 20px;
 `;
 
-const ItemCard = styled.div<{ owned: boolean }>`
+const ItemCard = styled.div<{ owned: boolean; available: boolean }>`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
@@ -84,9 +105,10 @@ const ItemCard = styled.div<{ owned: boolean }>`
   transition: transform 0.3s;
   border: ${props => props.owned ? '3px solid #4CAF50' : '3px solid transparent'};
   position: relative;
+  opacity: ${props => props.available ? 1 : 0.6};
 
   &:hover {
-    transform: translateY(-5px);
+    transform: ${props => props.available ? 'translateY(-5px)' : 'none'};
   }
 `;
 
@@ -114,8 +136,14 @@ const ItemImage = styled.div<{ type: string; name: string }>`
         default:
           return `background: linear-gradient(45deg, #667eea, #764ba2);`;
       }
-    } else {
+    } else if (props.type === 'badge') {
       return `background: linear-gradient(45deg, #f093fb, #f5576c);`;
+    } else if (props.type === 'avatar') {
+      return `background: linear-gradient(45deg, #ffd700, #ffed4e);`;
+    } else if (props.type === 'theme') {
+      return `background: linear-gradient(45deg, #8e2de2, #4a00e0);`;
+    } else {
+      return `background: linear-gradient(45deg, #667eea, #764ba2);`;
     }
   }}
 `;
@@ -133,7 +161,7 @@ const ItemDescription = styled.p`
   line-height: 1.4;
 `;
 
-const ItemPrice = styled.div`
+const ItemMeta = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -146,7 +174,16 @@ const Price = styled.span`
   color: #667eea;
 `;
 
-const PurchaseButton = styled.button<{ owned: boolean }>`
+const LevelRequirement = styled.span<{ available: boolean }>`
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: ${props => props.available ? '#4CAF50' : '#FF9800'};
+  color: white;
+  font-weight: 600;
+`;
+
+const PurchaseButton = styled.button<{ owned: boolean; available: boolean }>`
   width: 100%;
   padding: 12px;
   border: none;
@@ -155,25 +192,37 @@ const PurchaseButton = styled.button<{ owned: boolean }>`
   cursor: pointer;
   transition: all 0.3s;
   
-  ${props => props.owned ? `
-    background: #4CAF50;
-    color: white;
-    cursor: default;
-  ` : `
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  ${props => {
+    if (props.owned) {
+      return `
+        background: #4CAF50;
+        color: white;
+        cursor: default;
+      `;
+    } else if (!props.available) {
+      return `
+        background: #ccc;
+        color: #666;
+        cursor: not-allowed;
+      `;
+    } else {
+      return `
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        &:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          transform: none;
+        }
+      `;
     }
-    
-    &:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-    }
-  `}
+  }}
 `;
 
 const OwnedBadge = styled.div`
@@ -186,6 +235,21 @@ const OwnedBadge = styled.div`
   border-radius: 15px;
   font-size: 0.8rem;
   font-weight: 600;
+`;
+
+const LockedBadge = styled.div`
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: #FF9800;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 `;
 
 const LoadingText = styled.div`
@@ -204,7 +268,7 @@ const EmptyState = styled.div`
 
 export const Store: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'skins' | 'badges'>('skins');
+  const [activeTab, setActiveTab] = useState<'skins' | 'badges' | 'avatar' | 'theme'>('skins');
   const [items, setItems] = useState<StoreItem[]>([]);
   const [ownedItems, setOwnedItems] = useState<StoreItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -232,7 +296,7 @@ export const Store: React.FC = () => {
   };
 
   const handlePurchase = async (item: StoreItem) => {
-    if (isItemOwned(item.id) || !canAfford(item.price)) return;
+    if (isItemOwned(item.id) || !item.available || !canAfford(item.price)) return;
 
     setPurchaseLoading(item.id);
     try {
@@ -259,10 +323,27 @@ export const Store: React.FC = () => {
   };
 
   const getItemEmoji = (item: StoreItem) => {
-    if (item.type === 'skin') {
-      return '🎨';
-    } else {
-      return item.name.split(' ')[0]; // First emoji from name
+    switch (item.type) {
+      case 'skin':
+        return '🎨';
+      case 'badge':
+        return item.name.split(' ')[0]; // First emoji from name
+      case 'avatar':
+        return '🖼️';
+      case 'theme':
+        return '🎭';
+      default:
+        return '🎨';
+    }
+  };
+
+  const getTabEmoji = (type: string) => {
+    switch (type) {
+      case 'skins': return '🎨';
+      case 'badges': return '🏆';
+      case 'avatar': return '🖼️';
+      case 'theme': return '🎭';
+      default: return '🎨';
     }
   };
 
@@ -278,18 +359,35 @@ export const Store: React.FC = () => {
     <StoreContainer>
       <StoreHeader>
         <StoreTitle>🛒 FapTracker Store</StoreTitle>
-        <StoreSubtitle>Customize your experience with skins and badges!</StoreSubtitle>
-        <PointsDisplay>
-          💎 {user?.total_sessions || 0} Points Available
-        </PointsDisplay>
+        <StoreSubtitle>Customize your experience with exclusive items!</StoreSubtitle>
+        <UserStats>
+          <StatItem>
+            <StatValue>{user?.total_sessions || 0}</StatValue>
+            <StatLabel>Points Available</StatLabel>
+          </StatItem>
+          <StatItem>
+            <StatValue>{user?.level || 1}</StatValue>
+            <StatLabel>Current Level</StatLabel>
+          </StatItem>
+          <StatItem>
+            <StatValue>{ownedItems.length}</StatValue>
+            <StatLabel>Items Owned</StatLabel>
+          </StatItem>
+        </UserStats>
       </StoreHeader>
 
       <TabsContainer>
         <Tab active={activeTab === 'skins'} onClick={() => setActiveTab('skins')}>
-          🎨 Skins
+          {getTabEmoji('skins')} Skins
         </Tab>
         <Tab active={activeTab === 'badges'} onClick={() => setActiveTab('badges')}>
-          🏆 Badges
+          {getTabEmoji('badges')} Badges
+        </Tab>
+        <Tab active={activeTab === 'avatar'} onClick={() => setActiveTab('avatar')}>
+          {getTabEmoji('avatar')} Avatars
+        </Tab>
+        <Tab active={activeTab === 'theme'} onClick={() => setActiveTab('theme')}>
+          {getTabEmoji('theme')} Themes
         </Tab>
       </TabsContainer>
 
@@ -301,12 +399,14 @@ export const Store: React.FC = () => {
         <ItemsGrid>
           {getFilteredItems().map((item) => {
             const owned = isItemOwned(item.id);
+            const available = item.available || false;
             const affordable = canAfford(item.price);
             const purchasing = purchaseLoading === item.id;
 
             return (
-              <ItemCard key={item.id} owned={owned}>
+              <ItemCard key={item.id} owned={owned} available={available}>
                 {owned && <OwnedBadge>✅ Owned</OwnedBadge>}
+                {!available && <LockedBadge>🔒 Lv.{item.level_required}</LockedBadge>}
                 
                 <ItemImage type={item.type} name={item.name}>
                   {getItemEmoji(item)}
@@ -315,21 +415,29 @@ export const Store: React.FC = () => {
                 <ItemName>{item.name}</ItemName>
                 <ItemDescription>{item.description}</ItemDescription>
                 
-                <ItemPrice>
+                <ItemMeta>
                   <Price>💎 {item.price}</Price>
-                  {!affordable && !owned && (
-                    <span style={{ color: '#ff6b6b', fontSize: '0.8rem' }}>
-                      Need {item.price - (user?.total_sessions || 0)} more
-                    </span>
-                  )}
-                </ItemPrice>
+                  <LevelRequirement available={available}>
+                    Level {item.level_required}
+                  </LevelRequirement>
+                </ItemMeta>
+                
+                {!affordable && !owned && available && (
+                  <div style={{ color: '#ff6b6b', fontSize: '0.8rem', marginBottom: '10px', textAlign: 'center' }}>
+                    Need {item.price - (user?.total_sessions || 0)} more points
+                  </div>
+                )}
                 
                 <PurchaseButton
                   owned={owned}
+                  available={available}
                   onClick={() => handlePurchase(item)}
-                  disabled={owned || !affordable || purchasing}
+                  disabled={owned || !available || !affordable || purchasing}
                 >
-                  {purchasing ? 'Purchasing...' : owned ? 'Owned' : affordable ? 'Purchase' : 'Not enough points'}
+                  {purchasing ? 'Purchasing...' : 
+                   owned ? 'Owned' : 
+                   !available ? `Requires Level ${item.level_required}` :
+                   affordable ? 'Purchase' : 'Not enough points'}
                 </PurchaseButton>
               </ItemCard>
             );
