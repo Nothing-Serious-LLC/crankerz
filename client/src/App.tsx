@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginForm } from './components/Auth/LoginForm';
 import { RegisterForm } from './components/Auth/RegisterForm';
-import { Layout } from './components/Layout/Layout';
 import { Home } from './components/Pages/Home';
 import { Community } from './components/Pages/Community';
+import { AnalyticsPage } from './components/Pages/Analytics';
 import { Store } from './components/Pages/Store';
-import { Analytics } from './components/Pages/Analytics';
+import { Layout } from './components/Layout/Layout';
 import './App.css';
+
+type Tab = 'home' | 'community' | 'analytics' | 'store';
 
 const AuthWrapper: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,7 +23,7 @@ const AuthWrapper: React.FC = () => {
 
 const MainApp: React.FC = () => {
   const { user, isLoading } = useAuth();
-  const [currentTab, setCurrentTab] = useState<'home' | 'analytics' | 'community' | 'store'>('home');
+  const [currentTab, setCurrentTab] = useState<Tab>('home');
 
   if (isLoading) {
     return (
@@ -43,14 +45,14 @@ const MainApp: React.FC = () => {
     return <AuthWrapper />;
   }
 
-  const renderCurrentPage = () => {
+  const renderCurrentTab = () => {
     switch (currentTab) {
       case 'home':
         return <Home />;
-      case 'analytics':
-        return <Analytics />;
       case 'community':
         return <Community />;
+      case 'analytics':
+        return <AnalyticsPage />;
       case 'store':
         return <Store />;
       default:
@@ -60,7 +62,7 @@ const MainApp: React.FC = () => {
 
   return (
     <Layout currentTab={currentTab} onTabChange={setCurrentTab}>
-      {renderCurrentPage()}
+      {renderCurrentTab()}
     </Layout>
   );
 };

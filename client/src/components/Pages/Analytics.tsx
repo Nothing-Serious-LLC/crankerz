@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { Analytics as AnalyticsData } from '../../types';
 import { analyticsAPI } from '../../services/api';
-import { Analytics } from '../../types';
 
-const AnalyticsContainer = styled.div`
+const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
   display: flex;
@@ -11,7 +11,7 @@ const AnalyticsContainer = styled.div`
   gap: 30px;
 `;
 
-const AnalyticsHeader = styled.div`
+const Header = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
@@ -20,13 +20,13 @@ const AnalyticsHeader = styled.div`
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 `;
 
-const AnalyticsTitle = styled.h1`
+const Title = styled.h1`
   color: #333;
   margin-bottom: 10px;
   font-size: 2rem;
 `;
 
-const AnalyticsSubtitle = styled.p`
+const Subtitle = styled.p`
   color: #666;
   font-size: 1.1rem;
 `;
@@ -46,7 +46,7 @@ const StatCard = styled.div`
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 `;
 
-const StatValue = styled.div`
+const StatNumber = styled.div`
   font-size: 2.5rem;
   font-weight: 700;
   color: #667eea;
@@ -60,7 +60,7 @@ const StatLabel = styled.div`
   letter-spacing: 0.5px;
 `;
 
-const ChartCard = styled.div`
+const ChartSection = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
@@ -82,10 +82,17 @@ const BarChart = styled.div`
   margin-bottom: 20px;
 `;
 
-const Bar = styled.div<{ height: number; color?: string }>`
+const BarContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+`;
+
+const Bar = styled.div<{ height: number }>`
   flex: 1;
-  background: ${props => props.color || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};
-  height: ${props => props.height}%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: ${props => props.height}px;
   border-radius: 4px 4px 0 0;
   min-height: 5px;
   transition: all 0.3s ease;
@@ -98,46 +105,14 @@ const Bar = styled.div<{ height: number; color?: string }>`
 `;
 
 const BarLabel = styled.div`
-  display: flex;
-  justify-content: space-between;
   font-size: 0.8rem;
   color: #666;
-  margin-top: 10px;
 `;
 
-const InsightCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-`;
-
-const InsightTitle = styled.h3`
-  color: #333;
-  margin-bottom: 15px;
-  font-size: 1.3rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const InsightText = styled.p`
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 10px;
-`;
-
-const HighlightText = styled.span`
-  color: #667eea;
+const BarValue = styled.div`
+  font-size: 0.9rem;
   font-weight: 600;
-`;
-
-const LoadingState = styled.div`
-  text-align: center;
-  color: #666;
-  font-style: italic;
-  padding: 40px;
+  color: #333;
 `;
 
 const TrendChart = styled.div`
@@ -148,13 +123,14 @@ const TrendChart = styled.div`
   margin-bottom: 20px;
 `;
 
-const TrendBar = styled.div<{ height: number }>`
-  flex: 1;
+const TrendPoint = styled.div<{ left: string; height: string }>`
+  position: absolute;
+  left: ${props => props.left};
+  bottom: 0;
+  width: 10px;
   background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
-  height: ${props => props.height}%;
   border-radius: 8px;
   min-height: 10px;
-  position: relative;
   transition: all 0.3s ease;
   
   &:hover {
@@ -162,16 +138,74 @@ const TrendBar = styled.div<{ height: number }>`
   }
 `;
 
-const TrendLabel = styled.div`
-  display: flex;
-  justify-content: space-between;
+const TrendValue = styled.div`
   font-size: 0.8rem;
-  color: #666;
-  margin-top: 10px;
+  color: #333;
+  font-weight: 600;
 `;
 
-export const Analytics: React.FC = () => {
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+const TrendMonth = styled.div`
+  font-size: 0.7rem;
+  color: #666;
+  margin-top: 5px;
+`;
+
+const InsightsSection = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+`;
+
+const InsightsTitle = styled.h3`
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const InsightCard = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.6;
+`;
+
+const JoinedDate = styled.div`
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+`;
+
+const LoadingMessage = styled.div`
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 40px;
+`;
+
+const ErrorMessage = styled.div`
+  text-align: center;
+  color: #F44336;
+  font-weight: bold;
+  padding: 40px;
+`;
+
+export const AnalyticsPage: React.FC = () => {
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -180,6 +214,7 @@ export const Analytics: React.FC = () => {
 
   const loadAnalytics = async () => {
     try {
+      setIsLoading(true);
       const data = await analyticsAPI.getUserAnalytics();
       setAnalytics(data);
     } catch (error) {
@@ -189,65 +224,38 @@ export const Analytics: React.FC = () => {
     }
   };
 
-  const formatHour = (hour: number) => {
-    if (hour === 0) return '12 AM';
-    if (hour < 12) return `${hour} AM`;
-    if (hour === 12) return '12 PM';
-    return `${hour - 12} PM`;
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
   };
 
-  const getDayName = (index: number) => {
+  const getDayName = (dayIndex: number) => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    return days[index];
+    return days[dayIndex];
   };
 
-  const getConsistencyColor = (score: number) => {
-    if (score >= 80) return '#4CAF50';
-    if (score >= 60) return '#FF9800';
-    return '#F44336';
-  };
-
-  const getInsights = () => {
-    if (!analytics) return [];
-
+  const generateInsights = (data: AnalyticsData) => {
     const insights = [];
-    const { patterns, basicStats, consistencyScore } = analytics;
-
-    // Best time insight
-    insights.push({
-      icon: '⏰',
-      title: 'Peak Performance Time',
-      text: `Your most active time is ${formatHour(patterns.bestHour)} on ${patterns.bestDay}s. Consider scheduling important activities around your natural rhythm.`
-    });
-
-    // Consistency insight
-    if (consistencyScore >= 80) {
-      insights.push({
-        icon: '🎯',
-        title: 'Consistency Champion',
-        text: `Your consistency score of ${consistencyScore}% puts you in the top tier! You're maintaining excellent habits.`
-      });
-    } else if (consistencyScore >= 60) {
-      insights.push({
-        icon: '📈',
-        title: 'Room for Improvement',
-        text: `Your consistency score is ${consistencyScore}%. Try to maintain more regular patterns to boost your performance.`
-      });
-    } else {
-      insights.push({
-        icon: '🚀',
-        title: 'Getting Started',
-        text: `Your consistency score is ${consistencyScore}%. Focus on building daily habits to see dramatic improvements.`
-      });
+    
+    if (data.patterns.bestDay) {
+      insights.push(`Your most active day is ${data.patterns.bestDay}`);
     }
-
-    // Streak insight
-    if (basicStats.longest_streak >= 7) {
-      insights.push({
-        icon: '🔥',
-        title: 'Streak Master',
-        text: `Your longest streak of ${basicStats.longest_streak} days shows you have great discipline. Keep pushing those limits!`
-      });
+    
+    if (data.patterns.bestHour !== undefined) {
+      const hour = data.patterns.bestHour;
+      const timeStr = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
+      insights.push(`Peak performance time: ${timeStr}`);
+    }
+    
+    if (data.consistencyScore > 80) {
+      insights.push('Consistency champion! 🏆');
+    } else if (data.consistencyScore > 60) {
+      insights.push('Good consistency, keep it up! 👍');
+    } else {
+      insights.push('Room for improvement in consistency 📈');
+    }
+    
+    if (data.basicStats.current_streak >= 7) {
+      insights.push(`Amazing ${data.basicStats.current_streak}-day streak! 🔥`);
     }
 
     return insights;
@@ -255,122 +263,89 @@ export const Analytics: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AnalyticsContainer>
-        <LoadingState>Loading your analytics...</LoadingState>
-      </AnalyticsContainer>
+      <Container>
+        <LoadingMessage>Loading your analytics...</LoadingMessage>
+      </Container>
     );
   }
 
   if (!analytics) {
     return (
-      <AnalyticsContainer>
-        <LoadingState>Unable to load analytics data.</LoadingState>
-      </AnalyticsContainer>
+      <Container>
+        <ErrorMessage>Failed to load analytics. Please try again.</ErrorMessage>
+      </Container>
     );
   }
 
-  const maxDayCount = Math.max(...analytics.patterns.dayCounts);
-  const maxMonthSessions = Math.max(...analytics.monthlyTrends.map(m => m.sessions));
+  const insights = generateInsights(analytics);
 
   return (
-    <AnalyticsContainer>
-      <AnalyticsHeader>
-        <AnalyticsTitle>📊 Your Analytics</AnalyticsTitle>
-        <AnalyticsSubtitle>Deep insights into your patterns and progress</AnalyticsSubtitle>
-      </AnalyticsHeader>
+    <Container>
+      <Header>
+        <Title>📊 Your Analytics</Title>
+        <Subtitle>Track your progress and patterns</Subtitle>
+      </Header>
 
       <StatsGrid>
         <StatCard>
-          <StatValue>{analytics.basicStats.total_sessions}</StatValue>
+          <StatNumber>{analytics.basicStats.total_sessions}</StatNumber>
           <StatLabel>Total Sessions</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue>{analytics.basicStats.level}</StatValue>
+          <StatNumber>Level {analytics.basicStats.level}</StatNumber>
           <StatLabel>Current Level</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue>{analytics.consistencyScore}%</StatValue>
+          <StatNumber>{analytics.consistencyScore}%</StatNumber>
           <StatLabel>Consistency Score</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue>{analytics.basicStats.longest_streak}</StatValue>
+          <StatNumber>{analytics.basicStats.longest_streak}</StatNumber>
           <StatLabel>Best Streak</StatLabel>
         </StatCard>
       </StatsGrid>
 
-      <ChartCard>
+      <ChartSection>
         <ChartTitle>📅 Activity by Day of Week</ChartTitle>
         <BarChart>
           {analytics.patterns.dayCounts.map((count, index) => (
-            <Bar
-              key={index}
-              height={maxDayCount > 0 ? (count / maxDayCount) * 100 : 0}
-              color={count === maxDayCount ? 'linear-gradient(135deg, #ff6b6b, #ffa500)' : undefined}
-            />
+            <BarContainer key={index}>
+              <Bar height={Math.max(count * 10, 5)} />
+              <BarLabel>{getDayName(index)}</BarLabel>
+              <BarValue>{count}</BarValue>
+            </BarContainer>
           ))}
         </BarChart>
-        <BarLabel>
-          {analytics.patterns.dayCounts.map((count, index) => (
-            <div key={index}>
-              <div>{getDayName(index)}</div>
-              <div style={{ fontWeight: '600', color: '#333' }}>{count}</div>
-            </div>
+      </ChartSection>
+
+      <ChartSection>
+        <ChartTitle>📈 Monthly Trends</ChartTitle>
+        <TrendChart>
+          {analytics.monthlyTrends.map((trend, index) => (
+            <TrendPoint
+              key={trend.month}
+              left={`${(index / (analytics.monthlyTrends.length - 1)) * 100}%`}
+              height={`${Math.max(trend.sessions * 3, 10)}px`}
+            >
+              <TrendValue>{trend.sessions}</TrendValue>
+              <TrendMonth>{new Date(trend.month + '-01').toLocaleDateString('default', { month: 'short' })}</TrendMonth>
+            </TrendPoint>
           ))}
-        </BarLabel>
-      </ChartCard>
+        </TrendChart>
+      </ChartSection>
 
-      {analytics.monthlyTrends.length > 0 && (
-        <ChartCard>
-          <ChartTitle>📈 Monthly Trends</ChartTitle>
-          <TrendChart>
-            {analytics.monthlyTrends.map((trend, index) => (
-              <TrendBar
-                key={index}
-                height={maxMonthSessions > 0 ? (trend.sessions / maxMonthSessions) * 100 : 0}
-              />
-            ))}
-          </TrendChart>
-          <TrendLabel>
-            {analytics.monthlyTrends.map((trend, index) => (
-              <div key={index}>
-                <div>{trend.month}</div>
-                <div style={{ fontWeight: '600', color: '#333' }}>{trend.sessions}</div>
-              </div>
-            ))}
-          </TrendLabel>
-        </ChartCard>
-      )}
+      <InsightsSection>
+        <InsightsTitle>💡 Insights</InsightsTitle>
+        {insights.map((insight, index) => (
+          <InsightCard key={index}>
+            {insight}
+          </InsightCard>
+        ))}
+      </InsightsSection>
 
-      {getInsights().map((insight, index) => (
-        <InsightCard key={index}>
-          <InsightTitle>
-            <span>{insight.icon}</span>
-            {insight.title}
-          </InsightTitle>
-          <InsightText>{insight.text}</InsightText>
-        </InsightCard>
-      ))}
-
-      <InsightCard>
-        <InsightTitle>
-          <span>🎯</span>
-          Quick Stats
-        </InsightTitle>
-        <InsightText>
-          Most active day: <HighlightText>{analytics.patterns.bestDay}</HighlightText>
-        </InsightText>
-        <InsightText>
-          Peak hour: <HighlightText>{formatHour(analytics.patterns.bestHour)}</HighlightText>
-        </InsightText>
-        <InsightText>
-          Member since: <HighlightText>{new Date(analytics.basicStats.join_date).toLocaleDateString()}</HighlightText>
-        </InsightText>
-        <InsightText>
-          Consistency score: <HighlightText style={{ color: getConsistencyColor(analytics.consistencyScore) }}>
-            {analytics.consistencyScore}%
-          </HighlightText>
-        </InsightText>
-      </InsightCard>
-    </AnalyticsContainer>
+      <JoinedDate>
+        Member since {formatDate(analytics.basicStats.join_date)}
+      </JoinedDate>
+    </Container>
   );
 };
