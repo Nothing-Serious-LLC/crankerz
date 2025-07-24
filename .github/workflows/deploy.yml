@@ -2,9 +2,7 @@ name: Deploy FapTracker to GitHub Pages
 
 on:
   push:
-    branches: [ main, cursor/develop-masturbation-tracking-website-with-social-features-a7c4 ]
-  pull_request:
-    branches: [ main ]
+    branches: [ cursor/develop-masturbation-tracking-website-with-social-features-a7c4 ]
 
 permissions:
   contents: read
@@ -28,23 +26,20 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: |
-          package-lock.json
-          client/package-lock.json
+        cache-dependency-path: client/package-lock.json
           
     - name: Install dependencies
       run: |
-        npm install
-        cd client && npm install
+        cd client && npm ci
         
     - name: Build React app
       run: |
         cd client
         npm run build
       env:
-        REACT_APP_API_URL: https://crankerz.com/api
-        REACT_APP_ENV: production
         CI: false
+        GENERATE_SOURCEMAP: false
+        PUBLIC_URL: /
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
