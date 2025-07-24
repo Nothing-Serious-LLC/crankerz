@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "FapTracker",
+  "name": "FapTracker - Social Tracking Platform",
+  "description": "Track your habits, compete with friends, and level up your game!",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +21,11 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#667eea",
+  "background_color": "#667eea",
+  "orientation": "portrait-primary",
+  "categories": ["social", "lifestyle", "games"],
+  "lang": "en-US",
+  "scope": "/",
+  "prefer_related_applications": false
 }
