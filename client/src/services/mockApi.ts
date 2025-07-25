@@ -35,6 +35,13 @@ const initializeMockData = () => {
       { id: 8, name: 'Cosmic Purple', type: 'skin', price: 400, description: 'Deep space purple nebula theme', image_url: '/skins/cosmic.jpg', level_required: 15, created_at: new Date().toISOString() },
       { id: 9, name: 'Cherry Blossom', type: 'skin', price: 350, description: 'Soft pink sakura theme', image_url: '/skins/cherry.jpg', level_required: 12, created_at: new Date().toISOString() },
       { id: 10, name: 'Midnight Black', type: 'skin', price: 500, description: 'Ultimate black premium theme', image_url: '/skins/midnight.jpg', level_required: 20, created_at: new Date().toISOString() },
+      
+      // === ADDITIONAL SKINS ===
+      { id: 36, name: 'Lava Flow', type: 'skin', price: 180, description: 'Molten lava red and black theme', image_url: '/skins/lava.jpg', level_required: 7, created_at: new Date().toISOString() },
+      { id: 37, name: 'Electric Blue', type: 'skin', price: 220, description: 'High voltage electric theme', image_url: '/skins/electric.jpg', level_required: 9, created_at: new Date().toISOString() },
+      { id: 38, name: 'Golden Hour', type: 'skin', price: 320, description: 'Warm golden sunset vibes', image_url: '/skins/golden.jpg', level_required: 14, created_at: new Date().toISOString() },
+      { id: 39, name: 'Matrix Green', type: 'skin', price: 280, description: 'Digital matrix code aesthetic', image_url: '/skins/matrix.jpg', level_required: 11, created_at: new Date().toISOString() },
+      { id: 40, name: 'Rose Gold', type: 'skin', price: 380, description: 'Elegant rose gold luxury theme', image_url: '/skins/rosegold.jpg', level_required: 16, created_at: new Date().toISOString() },
 
       // === BADGES ===
       { id: 11, name: '🔥 Hot Streak', type: 'badge', price: 50, description: 'For the dedicated crankers', image_url: '/badges/hot.png', level_required: 1, created_at: new Date().toISOString() },
@@ -47,6 +54,13 @@ const initializeMockData = () => {
       { id: 18, name: '🌟 Superstar', type: 'badge', price: 200, description: 'Shining bright star', image_url: '/badges/star.png', level_required: 10, created_at: new Date().toISOString() },
       { id: 19, name: '🎪 Circus Master', type: 'badge', price: 175, description: 'Master of entertainment', image_url: '/badges/circus.png', level_required: 9, created_at: new Date().toISOString() },
       { id: 20, name: '🔮 Mystic', type: 'badge', price: 250, description: 'Mysterious and magical', image_url: '/badges/mystic.png', level_required: 12, created_at: new Date().toISOString() },
+      
+      // === ADDITIONAL BADGES ===
+      { id: 41, name: '🎮 Gamer', type: 'badge', price: 120, description: 'For the gaming enthusiasts', image_url: '/badges/gamer.png', level_required: 6, created_at: new Date().toISOString() },
+      { id: 42, name: '🌙 Night Owl', type: 'badge', price: 90, description: 'Late night session master', image_url: '/badges/nightowl.png', level_required: 4, created_at: new Date().toISOString() },
+      { id: 43, name: '🔋 Energizer', type: 'badge', price: 160, description: 'Always charged and ready', image_url: '/badges/energy.png', level_required: 8, created_at: new Date().toISOString() },
+      { id: 44, name: '🎨 Artist', type: 'badge', price: 140, description: 'Creative and colorful spirit', image_url: '/badges/artist.png', level_required: 7, created_at: new Date().toISOString() },
+      { id: 45, name: '🏴‍☠️ Rebel', type: 'badge', price: 200, description: 'Rules are meant to be broken', image_url: '/badges/rebel.png', level_required: 10, created_at: new Date().toISOString() },
 
       // === AVATARS ===
       { id: 21, name: 'Golden Border', type: 'avatar', price: 200, description: 'Luxurious golden profile border', image_url: '/avatars/golden.png', level_required: 12, created_at: new Date().toISOString() },
@@ -404,14 +418,18 @@ export const mockStoreAPI = {
   getItems: async (): Promise<StoreItem[]> => {
     await delay(300);
 
-    // Ensure store items exist
-    let items = getStorageItem('crankerz_store_items', []);
-    if (!items || items.length === 0) {
+    // Ensure store items exist, if not re initialize
+    let items: StoreItem[] = getStorageItem('crankerz_store_items', []);
+
+    // If items array is empty or somehow corrupted, force reinitialization
+    if (!Array.isArray(items) || items.length === 0) {
+      // Re-seed mock data and fetch again
+      setStorageItem('crankerz_initialized', false);
       initializeMockData();
       items = getStorageItem('crankerz_store_items', []);
     }
 
-    // All items are free and available to everyone
+    // All items are free and available to everyone in mock mode
     return items.map((item: StoreItem) => ({
       ...item,
       price: 0,

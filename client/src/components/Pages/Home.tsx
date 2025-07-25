@@ -61,6 +61,16 @@ const LevelPill = styled.div<{ skin?: string }>`
         return `background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);`;
       case 'Beach Sunset':
         return `background: linear-gradient(135deg, #ff8a80 0%, #ffcc02 100%);`;
+      case 'Lava Flow':
+        return `background: linear-gradient(135deg, #ff4500 0%, #8b0000 100%);`;
+      case 'Electric Blue':
+        return `background: linear-gradient(135deg, #0080ff 0%, #0040ff 100%);`;
+      case 'Golden Hour':
+        return `background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);`;
+      case 'Matrix Green':
+        return `background: linear-gradient(135deg, #00ff00 0%, #008000 100%);`;
+      case 'Rose Gold':
+        return `background: linear-gradient(135deg, #e8b4b8 0%, #d4af37 100%);`;
       default:
         return `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);`;
     }
@@ -216,6 +226,31 @@ const CheckInButton = styled.button<{ skin?: string; disabled?: boolean }>`
           background: linear-gradient(180deg, #ff8a80 0%, #ffcc02 100%);
           box-shadow: 0 12px 40px rgba(255, 138, 128, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.2);
         `;
+      case 'Lava Flow':
+        return `
+          background: linear-gradient(180deg, #ff4500 0%, #8b0000 100%);
+          box-shadow: 0 12px 40px rgba(255, 69, 0, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        `;
+      case 'Electric Blue':
+        return `
+          background: linear-gradient(180deg, #0080ff 0%, #0040ff 100%);
+          box-shadow: 0 12px 40px rgba(0, 128, 255, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        `;
+      case 'Golden Hour':
+        return `
+          background: linear-gradient(180deg, #ffd700 0%, #ff8c00 100%);
+          box-shadow: 0 12px 40px rgba(255, 215, 0, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        `;
+      case 'Matrix Green':
+        return `
+          background: linear-gradient(180deg, #00ff00 0%, #008000 100%);
+          box-shadow: 0 12px 40px rgba(0, 255, 0, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        `;
+      case 'Rose Gold':
+        return `
+          background: linear-gradient(180deg, #e8b4b8 0%, #d4af37 100%);
+          box-shadow: 0 12px 40px rgba(232, 180, 184, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        `;
       default:
         return `
           background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
@@ -310,6 +345,16 @@ const StatNumber = styled.div`
   color: rgba(255, 255, 255, 0.95);
   margin-bottom: 8px;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+`;
+
+const CountryStatNumber = styled.div`
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const StatLabel = styled.div`
@@ -575,10 +620,7 @@ export const Home: React.FC = () => {
   };
 
   const getMotivationalMessage = () => {
-    if (!canCheckIn && timeUntilNext > 0) {
-      return `Ready to crank again in ${formatTimeRemaining(timeUntilNext)} ⏰`;
-    }
-    
+    // Always show a consistent message, no countdown here
     const messages = [
       "Ready to level up? 😏",
       "Time to gain some XP! 💪", 
@@ -588,7 +630,9 @@ export const Home: React.FC = () => {
       "Climb the ranks! 🚀",
       "Earn that XP! 💎"
     ];
-    return messages[Math.floor(Math.random() * messages.length)];
+    // Use a consistent message based on user level to avoid flickering
+    const messageIndex = (user?.level || 1) % messages.length;
+    return messages[messageIndex];
   };
 
   return (
@@ -670,7 +714,7 @@ export const Home: React.FC = () => {
         </GlassCard>
         <GlassCard padding="0">
           <StatItem>
-            <StatNumber>{user?.country || 'Unknown'}</StatNumber>
+            <CountryStatNumber>{user?.country || 'Unknown'}</CountryStatNumber>
             <StatLabel>Country</StatLabel>
           </StatItem>
         </GlassCard>

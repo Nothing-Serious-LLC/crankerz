@@ -3,465 +3,467 @@ import styled from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
 import { storeAPI } from '../../services/api';
 import { StoreItem } from '../../types';
+import { GlassCard } from '../Common/GlassCard';
 
 const StoreContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 30px;
-  max-width: 1200px;
+  gap: 24px;
+  max-width: 400px;
   margin: 0 auto;
-  padding: 0 20px;
-  overflow-x: hidden; /* prevent white bar */
-`;
-
-const CategorySection = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-`;
-
-const CategoryTitle = styled.h2`
-  color: #333;
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-  text-align: center;
-`;
-
-const StoreHeader = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 30px;
-  text-align: center;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
 `;
 
 const StoreTitle = styled.h1`
-  color: #333;
-  margin-bottom: 10px;
-  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 `;
 
 const StoreSubtitle = styled.p`
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 1.1rem;
-  margin-bottom: 20px;
+  margin: 8px 0 0 0;
+  text-align: center;
+  font-weight: 500;
 `;
 
 const UserStats = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
 `;
 
 const StatItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
+  text-align: center;
+  padding: 20px;
 `;
 
-const StatValue = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 25px;
-  font-size: 1.2rem;
-  font-weight: 600;
+const StatNumber = styled.div`
+  font-size: 2rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const StatLabel = styled.div`
-  color: #666;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  font-weight: 500;
 `;
 
 const TabsContainer = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 10px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 5px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  gap: 8px;
+  width: 100%;
 `;
 
 const Tab = styled.button<{ active: boolean }>`
-  padding: 15px;
+  padding: 16px 12px;
   border: none;
-  border-radius: 15px;
+  border-radius: 12px;
   font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s;
-  background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent'};
-  color: ${props => props.active ? 'white' : '#666'};
+  transition: all 0.3s ease;
+  background: ${props => props.active 
+    ? 'rgba(102, 126, 234, 0.8)' 
+    : 'rgba(255, 255, 255, 0.05)'};
+  color: ${props => props.active 
+    ? 'white' 
+    : 'rgba(255, 255, 255, 0.8)'};
+  border: 1px solid ${props => props.active 
+    ? 'rgba(102, 126, 234, 0.5)' 
+    : 'rgba(255, 255, 255, 0.1)'};
+  text-shadow: ${props => props.active 
+    ? '0 1px 2px rgba(0, 0, 0, 0.2)' 
+    : 'none'};
 
   &:hover {
-    background: ${props => props.active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'rgba(102, 126, 234, 0.1)'};
-    color: ${props => props.active ? 'white' : '#667eea'};
+    background: ${props => props.active 
+      ? 'rgba(102, 126, 234, 0.9)' 
+      : 'rgba(255, 255, 255, 0.1)'};
+    transform: translateY(-1px);
   }
 `;
 
 const ItemsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  box-sizing: border-box;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  width: 100%;
 `;
 
-const ItemCard = styled.div<{ owned: boolean; available: boolean }>`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
-  border: ${props => props.owned ? '3px solid #4CAF50' : '3px solid transparent'};
+const ItemCard = styled.div<{ equipped?: boolean }>`
   position: relative;
-  opacity: ${props => props.available ? 1 : 0.6};
+  transition: all 0.3s ease;
+  border-radius: 16px;
+  overflow: hidden;
+  
+  ${props => props.equipped && `
+    &::before {
+      content: '✓';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(76, 175, 80, 0.9);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+  `}
 
   &:hover {
-    transform: ${props => props.available ? 'translateY(-5px)' : 'none'};
+    transform: translateY(-4px) scale(1.02);
   }
 `;
 
-const ItemImage = styled.div<{ type: string; name: string }>`
-  width: 100%;
+const ItemImage = styled.div<{ type: string }>`
   height: 120px;
-  border-radius: 15px;
-  margin-bottom: 20px;
+  border-radius: 12px 12px 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 3rem;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
   
   ${props => {
-    if (props.type === 'skin') {
-      switch (props.name.toLowerCase()) {
-        case 'fire theme':
-          return `background: linear-gradient(45deg, #ff6b6b, #ffa500);`;
-        case 'ocean theme':
-          return `background: linear-gradient(45deg, #4ecdc4, #44a08d);`;
-        case 'dark mode pro':
-          return `background: linear-gradient(45deg, #2c3e50, #34495e);`;
-        case 'neon glow':
-          return `background: linear-gradient(45deg, #ff00ff, #00ffff);`;
-        default:
-          return `background: linear-gradient(45deg, #667eea, #764ba2);`;
-      }
-    } else if (props.type === 'badge') {
-      return `background: linear-gradient(45deg, #f093fb, #f5576c);`;
-    } else if (props.type === 'avatar') {
-      return `background: linear-gradient(45deg, #ffd700, #ffed4e);`;
-    } else if (props.type === 'theme') {
-      return `background: linear-gradient(45deg, #8e2de2, #4a00e0);`;
-    } else {
-      return `background: linear-gradient(45deg, #667eea, #764ba2);`;
+    switch (props.type) {
+      case 'skin':
+        return `background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);`;
+      case 'badge':
+        return `background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);`;
+      case 'avatar':
+        return `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);`;
+      case 'theme':
+        return `background: linear-gradient(135deg, #ff006e 0%, #8338ec 100%);`;
+      default:
+        return `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);`;
     }
   }}
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  ${ItemCard}:hover &::before {
+    opacity: 1;
+  }
+`;
+
+const ItemContent = styled.div`
+  padding: 16px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 const ItemName = styled.h3`
-  color: #333;
-  margin-bottom: 10px;
-  font-size: 1.2rem;
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.3;
 `;
 
 const ItemDescription = styled.p`
-  color: #666;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.4;
+  flex-grow: 1;
 `;
 
-const ItemMeta = styled.div`
+const ItemFooter = styled.div`
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 15px;
-`;
-
-const Price = styled.span`
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #667eea;
-`;
-
-const LevelRequirement = styled.span<{ available: boolean }>`
-  font-size: 0.8rem;
-  padding: 4px 8px;
-  border-radius: 12px;
-  background: ${props => props.available ? '#4CAF50' : '#FF9800'};
-  color: white;
-  font-weight: 600;
-`;
-
-const PurchaseButton = styled.button<{ owned: boolean; available: boolean }>`
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  
-  ${props => {
-    if (props.owned) {
-      return `
-        background: #4CAF50;
-        color: white;
-        cursor: default;
-      `;
-    } else if (!props.available) {
-      return `
-        background: #ccc;
-        color: #666;
-        cursor: not-allowed;
-      `;
-    } else {
-      return `
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        &:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-          transform: none;
-        }
-      `;
-    }
-  }}
-`;
-
-const OwnedBadge = styled.div`
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: #4CAF50;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  font-weight: 600;
-`;
-
-const LockedBadge = styled.div`
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: #FF9800;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  display: flex;
   align-items: center;
-  gap: 5px;
+  margin-top: auto;
 `;
 
-const LoadingText = styled.div`
+const ItemPrice = styled.div`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(102, 126, 234, 0.6);
+  padding: 6px 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+`;
+
+const PurchaseButton = styled.button<{ purchased?: boolean }>`
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  ${props => props.purchased ? `
+    background: rgba(76, 175, 80, 0.8);
+    color: white;
+    cursor: default;
+  ` : `
+    background: rgba(102, 126, 234, 0.8);
+    color: white;
+    
+    &:hover {
+      background: rgba(102, 126, 234, 0.9);
+      transform: translateY(-1px);
+    }
+  `}
+`;
+
+const EquipButton = styled.button`
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 193, 7, 0.8);
+  color: white;
+  margin-left: 8px;
+  
+  &:hover {
+    background: rgba(255, 193, 7, 0.9);
+    transform: translateY(-1px);
+  }
+`;
+
+const LoadingMessage = styled.div`
   text-align: center;
-  color: #666;
-  font-style: italic;
   padding: 40px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
 `;
 
-const EmptyState = styled.div`
+const EmptyMessage = styled.div`
   text-align: center;
-  color: #666;
-  padding: 40px 20px;
-  font-style: italic;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
 `;
 
 export const Store: React.FC = () => {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'skins' | 'badges' | 'avatar' | 'theme'>('skins');
+  const { user, updateUser } = useAuth();
   const [items, setItems] = useState<StoreItem[]>([]);
-  const [ownedItems, setOwnedItems] = useState<StoreItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [purchaseLoading, setPurchaseLoading] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>('all');
+  const [purchasedItems, setPurchasedItems] = useState<string[]>([]);
 
   useEffect(() => {
-    loadStoreData();
+    loadStoreItems();
+    loadPurchasedItems();
   }, []);
 
-  const loadStoreData = async () => {
-    setIsLoading(true);
+  const loadStoreItems = async () => {
     try {
-      const [storeItems, purchases] = await Promise.all([
-        storeAPI.getItems(),
-        storeAPI.getPurchases()
-      ]);
-      
+      const storeItems = await storeAPI.getItems();
       setItems(storeItems);
-      setOwnedItems(purchases);
     } catch (error) {
-      console.error('Failed to load store data:', error);
+      console.error('Failed to load store items:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handlePurchase = async (item: StoreItem) => {
-    if (isItemOwned(item.id) || !item.available || !canAfford(item.price)) return;
-
-    setPurchaseLoading(item.id);
+  const loadPurchasedItems = async () => {
     try {
-      await storeAPI.purchaseItem(item.id);
-      await loadStoreData(); // Refresh data
-    } catch (error: any) {
-      console.error('Purchase failed:', error);
-      alert(error.response?.data?.error || 'Purchase failed');
-    } finally {
-      setPurchaseLoading(null);
+      const purchased = await storeAPI.getPurchases();
+      setPurchasedItems(purchased.map(item => item.id.toString()));
+    } catch (error) {
+      console.error('Failed to load purchased items:', error);
     }
   };
 
-  const isItemOwned = (itemId: number) => {
-    return ownedItems.some(item => item.id === itemId);
+  const handlePurchase = async (itemId: string) => {
+    try {
+      const response = await storeAPI.purchaseItem(parseInt(itemId));
+      setPurchasedItems([...purchasedItems, itemId]);
+    } catch (error) {
+      console.error('Purchase failed:', error);
+    }
   };
 
-  const canAfford = (price: number) => {
-    return (user?.total_sessions || 0) >= price;
+  const handleEquip = async (itemId: string, itemType: string) => {
+    // For now, just update the user's active skin client-side
+    // In a real app, this would be an API call
+    if (user) {
+      const updatedUser = { ...user };
+      const item = items.find(i => i.id.toString() === itemId);
+      if (item) {
+        if (item.type === 'skin' || item.type === 'theme') {
+          updatedUser.active_skin = item.name;
+        }
+        updateUser(updatedUser);
+      }
+    }
   };
 
-  const getFilteredItems = () => {
-    return items.filter(item => item.type === activeTab);
-  };
+  const filteredItems = items.filter(item => {
+    if (activeTab === 'all') return true;
+    return item.type === activeTab;
+  });
 
-  const getItemEmoji = (item: StoreItem) => {
+  const isItemEquipped = (item: StoreItem) => {
     switch (item.type) {
       case 'skin':
-        return '🎨';
-      case 'badge':
-        return item.name.split(' ')[0]; // First emoji from name
-      case 'avatar':
-        return '🖼️';
       case 'theme':
-        return '🎭';
+        return user?.active_skin === item.name;
+      case 'badge':
+        const userBadges = user?.badges ? JSON.parse(user.badges) : [];
+        return userBadges.includes(item.name);
+      case 'avatar':
+        // For now, no active_avatar field exists, so return false
+        return false;
       default:
-        return '🎨';
+        return false;
     }
   };
 
-  const getTabEmoji = (type: string) => {
-    switch (type) {
-      case 'skins': return '🎨';
-      case 'badges': return '🏆';
-      case 'avatar': return '🖼️';
-      case 'theme': return '🎭';
-      default: return '🎨';
-    }
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
       <StoreContainer>
-        <LoadingText>Loading store...</LoadingText>
+        <GlassCard>
+          <LoadingMessage>Loading store items...</LoadingMessage>
+        </GlassCard>
       </StoreContainer>
     );
   }
 
   return (
     <StoreContainer>
-      <StoreHeader>
-        <StoreTitle>🛒 Crankerz Store</StoreTitle>
-        <StoreSubtitle>Customize your experience with exclusive items!</StoreSubtitle>
+      {/* Store Header */}
+      <GlassCard>
+        <StoreTitle>Crankerz Store</StoreTitle>
+        <StoreSubtitle>Customize your experience with skins, badges, and more!</StoreSubtitle>
+        
         <UserStats>
-          <StatItem>
-            <StatValue>{user?.total_sessions || 0}</StatValue>
-            <StatLabel>Points Available</StatLabel>
-          </StatItem>
-          <StatItem>
-            <StatValue>{user?.level || 1}</StatValue>
-            <StatLabel>Current Level</StatLabel>
-          </StatItem>
-          <StatItem>
-            <StatValue>{ownedItems.length}</StatValue>
-            <StatLabel>Items Owned</StatLabel>
-          </StatItem>
+          <GlassCard padding="0">
+            <StatItem>
+              <StatNumber>{user?.level || 1}</StatNumber>
+              <StatLabel>Level</StatLabel>
+            </StatItem>
+          </GlassCard>
+          <GlassCard padding="0">
+            <StatItem>
+              <StatNumber>{user?.experience || 0}</StatNumber>
+              <StatLabel>XP</StatLabel>
+            </StatItem>
+          </GlassCard>
+          <GlassCard padding="0">
+            <StatItem>
+              <StatNumber>{user?.total_sessions || 0}</StatNumber>
+              <StatLabel>Sessions</StatLabel>
+            </StatItem>
+          </GlassCard>
         </UserStats>
-      </StoreHeader>
+      </GlassCard>
 
-      <TabsContainer>
-        <Tab active={activeTab === 'skins'} onClick={() => setActiveTab('skins')}>
-          {getTabEmoji('skins')} Skins
-        </Tab>
-        <Tab active={activeTab === 'badges'} onClick={() => setActiveTab('badges')}>
-          {getTabEmoji('badges')} Badges
-        </Tab>
-        <Tab active={activeTab === 'avatar'} onClick={() => setActiveTab('avatar')}>
-          {getTabEmoji('avatar')} Avatars
-        </Tab>
-        <Tab active={activeTab === 'theme'} onClick={() => setActiveTab('theme')}>
-          {getTabEmoji('theme')} Themes
-        </Tab>
-      </TabsContainer>
+      {/* Category Tabs */}
+      <GlassCard padding="16px">
+        <TabsContainer>
+          <Tab 
+            active={activeTab === 'all'} 
+            onClick={() => setActiveTab('all')}
+          >
+            All Items
+          </Tab>
+          <Tab 
+            active={activeTab === 'skin'} 
+            onClick={() => setActiveTab('skin')}
+          >
+            Themes
+          </Tab>
+          <Tab 
+            active={activeTab === 'badge'} 
+            onClick={() => setActiveTab('badge')}
+          >
+            Badges
+          </Tab>
+          <Tab 
+            active={activeTab === 'avatar'} 
+            onClick={() => setActiveTab('avatar')}
+          >
+            Avatars
+          </Tab>
+        </TabsContainer>
+      </GlassCard>
 
-      {getFilteredItems().length === 0 ? (
-        <EmptyState>
-          No {activeTab} available at the moment.
-        </EmptyState>
-      ) : (
+      {/* Items Grid */}
+      {filteredItems.length > 0 ? (
         <ItemsGrid>
-          {getFilteredItems().map((item) => {
-            const owned = isItemOwned(item.id);
-            const available = item.available || false;
-            const affordable = canAfford(item.price);
-            const purchasing = purchaseLoading === item.id;
-
-            return (
-              <ItemCard key={item.id} owned={owned} available={available}>
-                {owned && <OwnedBadge>✅ Owned</OwnedBadge>}
-                {!available && <LockedBadge>🔒 Lv.{item.level_required}</LockedBadge>}
-                
-                <ItemImage type={item.type} name={item.name}>
-                  {getItemEmoji(item)}
+          {filteredItems.map((item) => (
+            <GlassCard key={item.id} padding="0">
+              <ItemCard equipped={isItemEquipped(item)}>
+                <ItemImage type={item.type}>
+                  🎨
                 </ItemImage>
-                
-                <ItemName>{item.name}</ItemName>
-                <ItemDescription>{item.description}</ItemDescription>
-                
-                <ItemMeta>
-                  <Price>💎 {item.price}</Price>
-                  <LevelRequirement available={available}>
-                    Level {item.level_required}
-                  </LevelRequirement>
-                </ItemMeta>
-                
-                {!affordable && !owned && available && (
-                  <div style={{ color: '#ff6b6b', fontSize: '0.8rem', marginBottom: '10px', textAlign: 'center' }}>
-                    Need {item.price - (user?.total_sessions || 0)} more points
+                <ItemContent>
+                  <div>
+                    <ItemName>{item.name}</ItemName>
+                    <ItemDescription>{item.description}</ItemDescription>
                   </div>
-                )}
-                
-                <PurchaseButton
-                  owned={owned}
-                  available={available}
-                  onClick={() => handlePurchase(item)}
-                  disabled={owned || !available || !affordable || purchasing}
-                >
-                  {purchasing ? 'Purchasing...' : 
-                   owned ? 'Owned' : 
-                   !available ? `Requires Level ${item.level_required}` :
-                   affordable ? 'Purchase' : 'Not enough points'}
-                </PurchaseButton>
+                  <ItemFooter>
+                    <ItemPrice>
+                      {item.price === 0 ? 'FREE' : `${item.price} XP`}
+                    </ItemPrice>
+                                         {purchasedItems.includes(item.id.toString()) ? (
+                       <div style={{ display: 'flex', gap: '8px' }}>
+                         <PurchaseButton purchased>Owned</PurchaseButton>
+                         {!isItemEquipped(item) && (
+                           <EquipButton onClick={() => handleEquip(item.id.toString(), item.type)}>
+                             Equip
+                           </EquipButton>
+                         )}
+                       </div>
+                     ) : (
+                       <PurchaseButton onClick={() => handlePurchase(item.id.toString())}>
+                         Get Item
+                       </PurchaseButton>
+                     )}
+                  </ItemFooter>
+                </ItemContent>
               </ItemCard>
-            );
-          })}
+            </GlassCard>
+          ))}
         </ItemsGrid>
+      ) : (
+        <GlassCard>
+          <EmptyMessage>No items found in this category.</EmptyMessage>
+        </GlassCard>
       )}
     </StoreContainer>
   );

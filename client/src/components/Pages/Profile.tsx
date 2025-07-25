@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
-import { analyticsAPI, friendsAPI } from '../../services/api';
-import { Analytics as AnalyticsData } from '../../types';
+import { analyticsAPI, friendsAPI, storeAPI } from '../../services/api';
+import { Analytics as AnalyticsData, StoreItem } from '../../types';
 import Icon from '@mdi/react';
 import { 
   mdiChevronDown, 
@@ -11,91 +11,97 @@ import {
   mdiAccountGroup, 
   mdiCog,
   mdiAccountPlus,
-  mdiAccount,
-  mdiTrophy,
-  mdiCalendar,
-  mdiTrendingUp
+  mdiTshirtCrew
 } from '@mdi/js';
+import { GlassCard } from '../Common/GlassCard';
 
 const ProfileContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  max-width: 800px;
+  gap: 24px;
+  max-width: 400px;
   margin: 0 auto;
-  padding: 0 20px;
-`;
-
-const ProfileHeader = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 30px;
-  text-align: center;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
 `;
 
 const AvatarSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 16px;
+  text-align: center;
 `;
 
-const LargeAvatar = styled.div`
-  width: 100px;
-  height: 100px;
+const LargeAvatar = styled.div<{ level?: number }>`
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  
+  ${props => {
+    const level = props.level || 1;
+    if (level >= 20) {
+      return `background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);`; // Gold
+    } else if (level >= 10) {
+      return `background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);`; // Silver
+    } else if (level >= 5) {
+      return `background: linear-gradient(135deg, #CD7F32 0%, #B8860B 100%);`; // Bronze
+    } else {
+      return `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);`; // Default
+    }
+  }}
 `;
 
 const UserName = styled.h1`
-  color: #333;
+  color: rgba(255, 255, 255, 0.95);
   margin: 0;
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+`;
+
+const UserLevel = styled.div`
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-top: 8px;
 `;
 
 const UserStats = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-top: 20px;
+  gap: 16px;
+  margin-top: 24px;
 `;
 
 const StatItem = styled.div`
   text-align: center;
+  padding: 16px;
 `;
 
 const StatNumber = styled.div`
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: #667eea;
-  margin-bottom: 5px;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const StatLabel = styled.div`
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-`;
-
-const Section = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  letter-spacing: 1px;
+  font-weight: 500;
 `;
 
 const SectionHeader = styled.button`
@@ -110,45 +116,50 @@ const SectionHeader = styled.button`
   cursor: pointer;
   font-size: 1.3rem;
   font-weight: 600;
-  color: #333;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: color 0.3s ease;
 
   &:hover {
-    color: #667eea;
+    color: rgba(255, 255, 255, 1);
   }
 `;
 
 const SectionContent = styled.div<{ expanded: boolean }>`
   max-height: ${props => props.expanded ? '2000px' : '0'};
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const AnalyticsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 25px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
 `;
 
 const AnalyticsCard = styled.div`
-  background: rgba(102, 126, 234, 0.1);
-  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
   padding: 20px;
   text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
 const AnalyticsNumber = styled.div`
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #667eea;
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const AnalyticsLabel = styled.div`
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  font-weight: 500;
 `;
 
 const InsightsList = styled.div`
@@ -158,97 +169,227 @@ const InsightsList = styled.div`
 `;
 
 const InsightItem = styled.div`
-  padding: 15px;
-  background: rgba(102, 126, 234, 0.05);
-  border-radius: 10px;
-  font-size: 0.95rem;
-  color: #555;
-  border-left: 4px solid #667eea;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  line-height: 1.4;
 `;
 
 const FriendsSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  margin-top: 20px;
 `;
 
-const AddFriendForm = styled.form`
+const AddFriendForm = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 20px;
 `;
 
 const FriendInput = styled.input`
   flex: 1;
   padding: 12px 16px;
-  border: 2px solid #e1e5e9;
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
   &:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: rgba(102, 126, 234, 0.5);
+    background: rgba(255, 255, 255, 0.08);
   }
 `;
 
-const AddButton = styled.button`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
+const AddFriendButton = styled.button`
   padding: 12px 20px;
-  border-radius: 10px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(102, 126, 234, 0.8);
+  color: white;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-  }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
+    background: rgba(102, 126, 234, 0.9);
+    transform: translateY(-1px);
   }
 `;
 
 const SettingsGrid = styled.div`
   display: grid;
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: 16px;
 `;
 
 const SettingItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  background: rgba(102, 126, 234, 0.05);
-  border-radius: 10px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
 const SettingLabel = styled.div`
-  font-weight: 600;
-  color: #333;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
 `;
 
-const SettingValue = styled.div`
-  color: #666;
+const SettingToggle = styled.button`
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(102, 126, 234, 0.8);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(102, 126, 234, 0.9);
+  }
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 32px;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+`;
+
+const EquipmentGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+`;
+
+const EquipmentSlot = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+const SlotLabel = styled.div`
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+  margin-bottom: 8px;
+`;
+
+const SlotContent = styled.div`
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
   font-size: 0.9rem;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SlotEmpty = styled.div`
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+  font-size: 0.8rem;
+`;
+
+const OwnedItemsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+`;
+
+const OwnedItem = styled.div<{ equipped?: boolean }>`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid ${props => props.equipped 
+    ? 'rgba(76, 175, 80, 0.5)' 
+    : 'rgba(255, 255, 255, 0.1)'};
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  
+  ${props => props.equipped && `
+    background: rgba(76, 175, 80, 0.1);
+    box-shadow: 0 0 12px rgba(76, 175, 80, 0.2);
+  `}
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(102, 126, 234, 0.5);
+    transform: translateY(-2px);
+  }
+`;
+
+const ItemIcon = styled.div`
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+`;
+
+const ItemName = styled.div`
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.2;
+`;
+
+const EquippedBadge = styled.div`
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background: #4CAF50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: white;
+  font-weight: bold;
 `;
 
 export const Profile: React.FC = () => {
-  const { user } = useAuth();
-  const [analyticsExpanded, setAnalyticsExpanded] = useState(true);
+  const { user, updateUser } = useAuth();
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [analyticsExpanded, setAnalyticsExpanded] = useState(false);
   const [friendsExpanded, setFriendsExpanded] = useState(false);
   const [settingsExpanded, setSettingsExpanded] = useState(false);
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
-  const [newFriend, setNewFriend] = useState('');
-  const [isAddingFriend, setIsAddingFriend] = useState(false);
+  const [equipmentExpanded, setEquipmentExpanded] = useState(true);
+  const [newFriendUsername, setNewFriendUsername] = useState('');
+  const [ownedItems, setOwnedItems] = useState<StoreItem[]>([]);
 
   useEffect(() => {
     loadAnalytics();
+    loadOwnedItems();
   }, []);
 
   const loadAnalytics = async () => {
@@ -260,11 +401,54 @@ export const Profile: React.FC = () => {
     }
   };
 
-  const getProfileAvatar = () => {
-    if (user?.username) {
-      return user.username.charAt(0).toUpperCase();
+  const loadOwnedItems = async () => {
+    try {
+      const items = await storeAPI.getPurchases();
+      setOwnedItems(items);
+    } catch (error) {
+      console.error('Failed to load owned items:', error);
     }
-    return '?';
+  };
+
+  const handleEquipItem = async (item: StoreItem) => {
+    if (user) {
+      const updatedUser = { ...user };
+      if (item.type === 'skin' || item.type === 'theme') {
+        updatedUser.active_skin = item.name;
+      }
+      updateUser(updatedUser);
+    }
+  };
+
+  const isItemEquipped = (item: StoreItem) => {
+    switch (item.type) {
+      case 'skin':
+      case 'theme':
+        return user?.active_skin === item.name;
+      case 'badge':
+        const userBadges = user?.badges ? JSON.parse(user.badges) : [];
+        return userBadges.includes(item.name);
+      default:
+        return false;
+    }
+  };
+
+  const getItemIcon = (item: StoreItem) => {
+    switch (item.type) {
+      case 'skin':
+      case 'theme':
+        return '🎨';
+      case 'badge':
+        return item.name.split(' ')[0] || '🏆';
+      case 'avatar':
+        return '🖼️';
+      default:
+        return '🎨';
+    }
+  };
+
+  const getProfileAvatar = () => {
+    return user?.username.charAt(0).toUpperCase() || 'U';
   };
 
   const getBadges = () => {
@@ -279,92 +463,137 @@ export const Profile: React.FC = () => {
     const insights = [];
     
     if (data.patterns.bestDay) {
-      insights.push(`🎯 Most active day: ${data.patterns.bestDay}`);
-    }
-    
-    if (data.patterns.bestHour !== undefined) {
-      const hour = data.patterns.bestHour;
-      const timeStr = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
-      insights.push(`⏰ Peak performance time: ${timeStr}`);
+      insights.push(`Your most active day is ${data.patterns.bestDay}`);
     }
     
     if (data.consistencyScore > 80) {
-      insights.push('🏆 Consistency champion! Keep up the excellent work!');
+      insights.push('You\'re a consistency champion! Keep it up! 🏆');
     } else if (data.consistencyScore > 60) {
-      insights.push('👍 Good consistency! You\'re building great habits!');
+      insights.push('Good consistency! Try to maintain your routine 👍');
     } else {
-      insights.push('📈 Focus on building more consistent habits for better results');
+      insights.push('Focus on building a more consistent routine 📈');
     }
     
     if (data.basicStats.current_streak >= 7) {
-      insights.push(`🔥 Amazing ${data.basicStats.current_streak}-day streak! You\'re on fire!`);
+      insights.push(`Amazing ${data.basicStats.current_streak}-day streak! 🔥`);
     } else if (data.basicStats.current_streak >= 3) {
-      insights.push(`✨ Nice ${data.basicStats.current_streak}-day streak building up!`);
+      insights.push(`Nice ${data.basicStats.current_streak}-day streak! Keep going! ⚡`);
     }
 
-    return insights;
+    if (data.patterns.bestHour !== undefined) {
+      const hour = data.patterns.bestHour;
+      const timeStr = hour < 12 ? `${hour}AM` : `${hour - 12}PM`;
+      insights.push(`You're most active around ${timeStr}`);
+    }
+
+    return insights.slice(0, 4);
   };
 
-  const handleAddFriend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newFriend.trim()) return;
-
-    setIsAddingFriend(true);
+  const handleAddFriend = async () => {
+    if (!newFriendUsername.trim()) return;
+    
     try {
-      await friendsAPI.addFriend(newFriend.trim());
-      setNewFriend('');
-      // Refresh friends list here when implemented
+      await friendsAPI.addFriend(newFriendUsername);
+      setNewFriendUsername('');
+      // In a real app, you'd refresh the friends list here
     } catch (error) {
       console.error('Failed to add friend:', error);
-    } finally {
-      setIsAddingFriend(false);
     }
   };
 
   return (
     <ProfileContainer>
       {/* Profile Header */}
-      <ProfileHeader>
+      <GlassCard>
         <AvatarSection>
-          <LargeAvatar>
+          <LargeAvatar level={user?.level}>
             {getProfileAvatar()}
           </LargeAvatar>
-          <UserName>{user?.username}</UserName>
-          <div style={{ display: 'flex', gap: '5px', fontSize: '1.2rem' }}>
-            {getBadges().map((badge: string, index: number) => (
-              <span key={index} role="img" aria-label="badge">{badge}</span>
-            ))}
+          <div>
+            <UserName>{user?.username || 'User'}</UserName>
+            <UserLevel>Level {user?.level || 1} • {user?.experience || 0} XP</UserLevel>
           </div>
         </AvatarSection>
-        
+
         <UserStats>
-          <StatItem>
-            <StatNumber>Level {user?.level || 1}</StatNumber>
-            <StatLabel>Current Level</StatLabel>
-          </StatItem>
-          <StatItem>
-            <StatNumber>{user?.experience || 0}</StatNumber>
-            <StatLabel>Total XP</StatLabel>
-          </StatItem>
-          <StatItem>
-            <StatNumber>{user?.total_sessions || 0}</StatNumber>
-            <StatLabel>Sessions</StatLabel>
-          </StatItem>
+          <GlassCard padding="0">
+            <StatItem>
+              <StatNumber>{user?.total_sessions || 0}</StatNumber>
+              <StatLabel>Sessions</StatLabel>
+            </StatItem>
+          </GlassCard>
+          <GlassCard padding="0">
+            <StatItem>
+              <StatNumber>{user?.current_streak || 0}</StatNumber>
+              <StatLabel>Streak</StatLabel>
+            </StatItem>
+          </GlassCard>
+          <GlassCard padding="0">
+            <StatItem>
+              <StatNumber>{getBadges().length}</StatNumber>
+              <StatLabel>Badges</StatLabel>
+            </StatItem>
+          </GlassCard>
         </UserStats>
-      </ProfileHeader>
+      </GlassCard>
+
+      {/* Equipment Section */}
+      <GlassCard>
+        <SectionHeader onClick={() => setEquipmentExpanded(!equipmentExpanded)}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Icon path={mdiTshirtCrew} size={1.2} />
+            Equipment & Items
+          </div>
+          <Icon path={equipmentExpanded ? mdiChevronUp : mdiChevronDown} size={1} />
+        </SectionHeader>
+        
+        <SectionContent expanded={equipmentExpanded}>
+          <EquipmentGrid>
+            <EquipmentSlot>
+              <SlotLabel>Active Theme</SlotLabel>
+              <SlotContent>
+                {user?.active_skin || <SlotEmpty>No theme equipped</SlotEmpty>}
+              </SlotContent>
+            </EquipmentSlot>
+            <EquipmentSlot>
+              <SlotLabel>Badges</SlotLabel>
+              <SlotContent>
+                {getBadges().length > 0 ? `${getBadges().length} equipped` : <SlotEmpty>No badges</SlotEmpty>}
+              </SlotContent>
+            </EquipmentSlot>
+          </EquipmentGrid>
+
+          {ownedItems.length > 0 ? (
+            <OwnedItemsGrid>
+              {ownedItems.map((item) => (
+                <OwnedItem
+                  key={item.id}
+                  equipped={isItemEquipped(item)}
+                  onClick={() => handleEquipItem(item)}
+                >
+                  {isItemEquipped(item) && <EquippedBadge>✓</EquippedBadge>}
+                  <ItemIcon>{getItemIcon(item)}</ItemIcon>
+                  <ItemName>{item.name}</ItemName>
+                </OwnedItem>
+              ))}
+            </OwnedItemsGrid>
+          ) : (
+            <EmptyState>
+              No items owned yet!<br />
+              Visit the store to get some customization items.
+            </EmptyState>
+          )}
+        </SectionContent>
+      </GlassCard>
 
       {/* Analytics Section */}
-      <Section>
+      <GlassCard>
         <SectionHeader onClick={() => setAnalyticsExpanded(!analyticsExpanded)}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Icon path={mdiChartLine} size={1} color="#667eea" />
-            <span>Analytics & Insights</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Icon path={mdiChartLine} size={1.2} />
+            Analytics & Insights
           </div>
-          <Icon 
-            path={analyticsExpanded ? mdiChevronUp : mdiChevronDown} 
-            size={1} 
-            color="#667eea" 
-          />
+          <Icon path={analyticsExpanded ? mdiChevronUp : mdiChevronDown} size={1} />
         </SectionHeader>
         
         <SectionContent expanded={analyticsExpanded}>
@@ -373,15 +602,11 @@ export const Profile: React.FC = () => {
               <AnalyticsGrid>
                 <AnalyticsCard>
                   <AnalyticsNumber>{analytics.consistencyScore}%</AnalyticsNumber>
-                  <AnalyticsLabel>Consistency Score</AnalyticsLabel>
+                  <AnalyticsLabel>Consistency</AnalyticsLabel>
                 </AnalyticsCard>
                 <AnalyticsCard>
                   <AnalyticsNumber>{analytics.basicStats.longest_streak}</AnalyticsNumber>
                   <AnalyticsLabel>Best Streak</AnalyticsLabel>
-                </AnalyticsCard>
-                <AnalyticsCard>
-                  <AnalyticsNumber>{analytics.basicStats.current_streak}</AnalyticsNumber>
-                  <AnalyticsLabel>Current Streak</AnalyticsLabel>
                 </AnalyticsCard>
               </AnalyticsGrid>
               
@@ -392,85 +617,76 @@ export const Profile: React.FC = () => {
               </InsightsList>
             </>
           ) : (
-            <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
-              Loading analytics...
-            </div>
+            <EmptyState>Loading analytics...</EmptyState>
           )}
         </SectionContent>
-      </Section>
+      </GlassCard>
 
       {/* Friends Section */}
-      <Section>
+      <GlassCard>
         <SectionHeader onClick={() => setFriendsExpanded(!friendsExpanded)}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Icon path={mdiAccountGroup} size={1} color="#667eea" />
-            <span>Friends & Social</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Icon path={mdiAccountGroup} size={1.2} />
+            Friends & Social
           </div>
-          <Icon 
-            path={friendsExpanded ? mdiChevronUp : mdiChevronDown} 
-            size={1} 
-            color="#667eea" 
-          />
+          <Icon path={friendsExpanded ? mdiChevronUp : mdiChevronDown} size={1} />
         </SectionHeader>
         
         <SectionContent expanded={friendsExpanded}>
           <FriendsSection>
-            <AddFriendForm onSubmit={handleAddFriend}>
+            <AddFriendForm>
               <FriendInput
                 type="text"
-                placeholder="Enter username to add friend"
-                value={newFriend}
-                onChange={(e) => setNewFriend(e.target.value)}
+                placeholder="Enter username..."
+                value={newFriendUsername}
+                onChange={(e) => setNewFriendUsername(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAddFriend()}
               />
-              <AddButton type="submit" disabled={isAddingFriend || !newFriend.trim()}>
-                <Icon path={mdiAccountPlus} size={0.8} />
-              </AddButton>
+              <AddFriendButton onClick={handleAddFriend}>
+                <Icon path={mdiAccountPlus} size={0.9} />
+                Add Friend
+              </AddFriendButton>
             </AddFriendForm>
             
-            <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
-              Friends list coming soon! 🚀
-            </div>
+            <EmptyState>
+              Friends feature coming soon! 🚀<br />
+              Connect with other crankers to compete and motivate each other.
+            </EmptyState>
           </FriendsSection>
         </SectionContent>
-      </Section>
+      </GlassCard>
 
       {/* Settings Section */}
-      <Section>
+      <GlassCard>
         <SectionHeader onClick={() => setSettingsExpanded(!settingsExpanded)}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Icon path={mdiCog} size={1} color="#667eea" />
-            <span>Settings & Preferences</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Icon path={mdiCog} size={1.2} />
+            Settings & Preferences
           </div>
-          <Icon 
-            path={settingsExpanded ? mdiChevronUp : mdiChevronDown} 
-            size={1} 
-            color="#667eea" 
-          />
+          <Icon path={settingsExpanded ? mdiChevronUp : mdiChevronDown} size={1} />
         </SectionHeader>
         
         <SectionContent expanded={settingsExpanded}>
           <SettingsGrid>
             <SettingItem>
-              <SettingLabel>Country</SettingLabel>
-              <SettingValue>{user?.country || 'Not set'}</SettingValue>
+              <SettingLabel>Notifications</SettingLabel>
+              <SettingToggle>Enabled</SettingToggle>
             </SettingItem>
             <SettingItem>
-              <SettingLabel>Active Theme</SettingLabel>
-              <SettingValue>{user?.active_skin || 'Default'}</SettingValue>
+              <SettingLabel>Privacy Mode</SettingLabel>
+              <SettingToggle>Disabled</SettingToggle>
             </SettingItem>
             <SettingItem>
-              <SettingLabel>Account Created</SettingLabel>
-              <SettingValue>
-                {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
-              </SettingValue>
+              <SettingLabel>Dark Theme</SettingLabel>
+              <SettingToggle>Auto</SettingToggle>
             </SettingItem>
             <SettingItem>
-              <SettingLabel>Privacy Settings</SettingLabel>
-              <SettingValue>Coming soon</SettingValue>
+              <SettingLabel>Sound Effects</SettingLabel>
+              <SettingToggle>Enabled</SettingToggle>
             </SettingItem>
           </SettingsGrid>
         </SectionContent>
-      </Section>
+      </GlassCard>
     </ProfileContainer>
   );
 }; 

@@ -21,9 +21,36 @@ const SkipLink = styled.a`
   }
 `;
 
-const LayoutContainer = styled.div`
+// Map active skin to a global page background gradient
+const getSkinGradient = (skin?: string) => {
+  switch (skin) {
+    case 'Fire Theme': return 'linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%)';
+    case 'Ocean Theme': return 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)';
+    case 'Dark Mode Pro': return 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)';
+    case 'Neon Glow': return 'linear-gradient(135deg, #ff00ff 0%, #00ffff 100%)';
+    case 'Forest Theme': return 'linear-gradient(135deg, #228b22 0%, #32cd32 100%)';
+    case 'Sunset Glow': return 'linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)';
+    case 'Ice Crystal': return 'linear-gradient(135deg, #00bfff 0%, #87ceeb 100%)';
+    case 'Cosmic Purple': return 'linear-gradient(135deg, #4b0082 0%, #8a2be2 100%)';
+    case 'Cherry Blossom': return 'linear-gradient(135deg, #ffb6c1 0%, #ffc0cb 100%)';
+    case 'Midnight Black': return 'linear-gradient(135deg, #000000 0%, #2c2c2c 100%)';
+    case 'Retro Wave': return 'linear-gradient(135deg, #ff006e 0%, #8338ec 100%)';
+    case 'Minimalist White': return 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)';
+    case 'Gaming RGB': return 'linear-gradient(135deg, #ff0000 0%, #00ff00 50%, #0000ff 100%)';
+    case 'Coffee Shop': return 'linear-gradient(135deg, #8b4513 0%, #d2691e 100%)';
+    case 'Beach Sunset': return 'linear-gradient(135deg, #ff8a80 0%, #ffcc02 100%)';
+    case 'Lava Flow': return 'linear-gradient(135deg, #ff4500 0%, #8b0000 100%)';
+    case 'Electric Blue': return 'linear-gradient(135deg, #0080ff 0%, #0040ff 100%)';
+    case 'Golden Hour': return 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)';
+    case 'Matrix Green': return 'linear-gradient(135deg, #00ff00 0%, #008000 100%)';
+    case 'Rose Gold': return 'linear-gradient(135deg, #e8b4b8 0%, #d4af37 100%)';
+    default: return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+  }
+};
+
+const LayoutContainer = styled.div<{ skin?: string }>`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: ${props => getSkinGradient(props.skin)};
   display: flex;
   flex-direction: column;
   position: relative;
@@ -145,7 +172,9 @@ const MainContent = styled.main`
   padding: 20px;
   padding-bottom: 100px; // Space for bottom nav
   overflow-y: auto;
+  overflow-x: hidden; // Prevent horizontal scrollbars
   scroll-behavior: smooth;
+  scrollbar-gutter: stable; // Reserve space for scrollbar to prevent layout shift
 
   @media (max-width: 480px) {
     padding: 15px;
@@ -386,7 +415,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
   };
 
   return (
-    <LayoutContainer>      
+    <LayoutContainer skin={user?.active_skin}>      
       <Header role="banner">
         <Logo>Crankerz</Logo>
         <UserInfo>
