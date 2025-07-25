@@ -83,25 +83,81 @@ const CheckInButton = styled.button<{ skin?: string }>`
   
   ${props => {
     switch (props.skin) {
-      case 'fire':
+      case 'Fire Theme':
         return `
           background: linear-gradient(45deg, #ff6b6b, #ffa500);
           box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
         `;
-      case 'ocean':
+      case 'Ocean Theme':
         return `
           background: linear-gradient(45deg, #4ecdc4, #44a08d);
           box-shadow: 0 10px 30px rgba(78, 205, 196, 0.4);
         `;
-      case 'dark':
+      case 'Dark Mode Pro':
         return `
           background: linear-gradient(45deg, #2c3e50, #34495e);
           box-shadow: 0 10px 30px rgba(44, 62, 80, 0.4);
         `;
-      case 'neon':
+      case 'Neon Glow':
         return `
           background: linear-gradient(45deg, #ff00ff, #00ffff);
           box-shadow: 0 10px 30px rgba(255, 0, 255, 0.4);
+        `;
+      case 'Forest Theme':
+        return `
+          background: linear-gradient(45deg, #228b22, #32cd32);
+          box-shadow: 0 10px 30px rgba(34, 139, 34, 0.4);
+        `;
+      case 'Sunset Glow':
+        return `
+          background: linear-gradient(45deg, #ff7e5f, #feb47b);
+          box-shadow: 0 10px 30px rgba(255, 126, 95, 0.4);
+        `;
+      case 'Ice Crystal':
+        return `
+          background: linear-gradient(45deg, #00bfff, #87ceeb);
+          box-shadow: 0 10px 30px rgba(0, 191, 255, 0.4);
+        `;
+      case 'Cosmic Purple':
+        return `
+          background: linear-gradient(45deg, #4b0082, #8a2be2);
+          box-shadow: 0 10px 30px rgba(75, 0, 130, 0.4);
+        `;
+      case 'Cherry Blossom':
+        return `
+          background: linear-gradient(45deg, #ffb6c1, #ffc0cb);
+          box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4);
+        `;
+      case 'Midnight Black':
+        return `
+          background: linear-gradient(45deg, #000000, #2c2c2c);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        `;
+      case 'Retro Wave':
+        return `
+          background: linear-gradient(45deg, #ff006e, #8338ec);
+          box-shadow: 0 10px 30px rgba(255, 0, 110, 0.4);
+        `;
+      case 'Minimalist White':
+        return `
+          background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+          box-shadow: 0 10px 30px rgba(233, 236, 239, 0.4);
+          color: #333;
+        `;
+      case 'Gaming RGB':
+        return `
+          background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff);
+          box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+        `;
+      case 'Coffee Shop':
+        return `
+          background: linear-gradient(45deg, #8b4513, #d2691e);
+          box-shadow: 0 10px 30px rgba(139, 69, 19, 0.4);
+        `;
+      case 'Beach Sunset':
+        return `
+          background: linear-gradient(45deg, #ff8a80, #ffcc02);
+          box-shadow: 0 10px 30px rgba(255, 138, 128, 0.4);
         `;
       default:
         return `

@@ -5,11 +5,28 @@ import { storeAPI } from '../../services/api';
 import { StoreItem } from '../../types';
 
 const StoreContainer = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+`;
+
+const CategorySection = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+`;
+
+const CategoryTitle = styled.h2`
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
 `;
 
 const StoreHeader = styled.div`

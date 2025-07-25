@@ -22,13 +22,50 @@ const setStorageItem = (key: string, value: any) => {
 // Mock data initialization
 const initializeMockData = () => {
   if (!getStorageItem('crankerz_initialized')) {
-    // Initialize default store items
+    // Initialize expanded store items
     const defaultStoreItems: StoreItem[] = [
-      { id: 1, name: 'Fire Theme', type: 'skin', price: 100, description: 'Hot red and orange theme', image_url: '/skins/fire.jpg', level_required: 1, created_at: new Date().toISOString() },
+      // === SKINS/THEMES ===
+      { id: 1, name: 'Fire Theme', type: 'skin', price: 100, description: 'Hot red and orange gradients', image_url: '/skins/fire.jpg', level_required: 1, created_at: new Date().toISOString() },
       { id: 2, name: 'Ocean Theme', type: 'skin', price: 150, description: 'Cool blue ocean vibes', image_url: '/skins/ocean.jpg', level_required: 3, created_at: new Date().toISOString() },
-      { id: 3, name: '🔥 Hot Streak', type: 'badge', price: 50, description: 'For the dedicated', image_url: '/badges/hot.png', level_required: 1, created_at: new Date().toISOString() },
-      { id: 4, name: '👑 King', type: 'badge', price: 300, description: 'Royal status', image_url: '/badges/king.png', level_required: 15, created_at: new Date().toISOString() },
-      { id: 5, name: 'Golden Border', type: 'avatar', price: 200, description: 'Luxurious golden profile border', image_url: '/avatars/golden.png', level_required: 12, created_at: new Date().toISOString() },
+      { id: 3, name: 'Dark Mode Pro', type: 'skin', price: 200, description: 'Sleek dark professional theme', image_url: '/skins/dark.jpg', level_required: 5, created_at: new Date().toISOString() },
+      { id: 4, name: 'Neon Glow', type: 'skin', price: 250, description: 'Cyberpunk neon aesthetics', image_url: '/skins/neon.jpg', level_required: 8, created_at: new Date().toISOString() },
+      { id: 5, name: 'Forest Theme', type: 'skin', price: 175, description: 'Natural green forest vibes', image_url: '/skins/forest.jpg', level_required: 4, created_at: new Date().toISOString() },
+      { id: 6, name: 'Sunset Glow', type: 'skin', price: 300, description: 'Warm orange-pink sunset gradients', image_url: '/skins/sunset.jpg', level_required: 10, created_at: new Date().toISOString() },
+      { id: 7, name: 'Ice Crystal', type: 'skin', price: 225, description: 'Cool ice blue crystalline theme', image_url: '/skins/ice.jpg', level_required: 6, created_at: new Date().toISOString() },
+      { id: 8, name: 'Cosmic Purple', type: 'skin', price: 400, description: 'Deep space purple nebula theme', image_url: '/skins/cosmic.jpg', level_required: 15, created_at: new Date().toISOString() },
+      { id: 9, name: 'Cherry Blossom', type: 'skin', price: 350, description: 'Soft pink sakura theme', image_url: '/skins/cherry.jpg', level_required: 12, created_at: new Date().toISOString() },
+      { id: 10, name: 'Midnight Black', type: 'skin', price: 500, description: 'Ultimate black premium theme', image_url: '/skins/midnight.jpg', level_required: 20, created_at: new Date().toISOString() },
+
+      // === BADGES ===
+      { id: 11, name: '🔥 Hot Streak', type: 'badge', price: 50, description: 'For the dedicated crankers', image_url: '/badges/hot.png', level_required: 1, created_at: new Date().toISOString() },
+      { id: 12, name: '👑 King', type: 'badge', price: 300, description: 'Royal status symbol', image_url: '/badges/king.png', level_required: 15, created_at: new Date().toISOString() },
+      { id: 13, name: '💎 Diamond', type: 'badge', price: 150, description: 'Precious and rare', image_url: '/badges/diamond.png', level_required: 8, created_at: new Date().toISOString() },
+      { id: 14, name: '🚀 Rocket', type: 'badge', price: 100, description: 'Sky high performer', image_url: '/badges/rocket.png', level_required: 5, created_at: new Date().toISOString() },
+      { id: 15, name: '⚡ Lightning', type: 'badge', price: 75, description: 'Quick and electric', image_url: '/badges/lightning.png', level_required: 3, created_at: new Date().toISOString() },
+      { id: 16, name: '🎯 Target', type: 'badge', price: 125, description: 'Always on target', image_url: '/badges/target.png', level_required: 6, created_at: new Date().toISOString() },
+      { id: 17, name: '🏆 Champion', type: 'badge', price: 400, description: 'Ultimate winner badge', image_url: '/badges/champion.png', level_required: 18, created_at: new Date().toISOString() },
+      { id: 18, name: '🌟 Superstar', type: 'badge', price: 200, description: 'Shining bright star', image_url: '/badges/star.png', level_required: 10, created_at: new Date().toISOString() },
+      { id: 19, name: '🎪 Circus Master', type: 'badge', price: 175, description: 'Master of entertainment', image_url: '/badges/circus.png', level_required: 9, created_at: new Date().toISOString() },
+      { id: 20, name: '🔮 Mystic', type: 'badge', price: 250, description: 'Mysterious and magical', image_url: '/badges/mystic.png', level_required: 12, created_at: new Date().toISOString() },
+
+      // === AVATARS ===
+      { id: 21, name: 'Golden Border', type: 'avatar', price: 200, description: 'Luxurious golden profile border', image_url: '/avatars/golden.png', level_required: 12, created_at: new Date().toISOString() },
+      { id: 22, name: 'Silver Frame', type: 'avatar', price: 150, description: 'Elegant silver frame', image_url: '/avatars/silver.png', level_required: 8, created_at: new Date().toISOString() },
+      { id: 23, name: 'Bronze Ring', type: 'avatar', price: 100, description: 'Classic bronze border', image_url: '/avatars/bronze.png', level_required: 5, created_at: new Date().toISOString() },
+      { id: 24, name: 'Neon Outline', type: 'avatar', price: 250, description: 'Glowing neon border effect', image_url: '/avatars/neon.png', level_required: 10, created_at: new Date().toISOString() },
+      { id: 25, name: 'Fire Ring', type: 'avatar', price: 175, description: 'Burning flame border', image_url: '/avatars/fire.png', level_required: 7, created_at: new Date().toISOString() },
+      { id: 26, name: 'Ice Crown', type: 'avatar', price: 300, description: 'Frozen crystal crown frame', image_url: '/avatars/ice.png', level_required: 14, created_at: new Date().toISOString() },
+      { id: 27, name: 'Rainbow Arc', type: 'avatar', price: 225, description: 'Colorful rainbow border', image_url: '/avatars/rainbow.png', level_required: 11, created_at: new Date().toISOString() },
+      { id: 28, name: 'Dragon Scale', type: 'avatar', price: 400, description: 'Mythical dragon scale frame', image_url: '/avatars/dragon.png', level_required: 16, created_at: new Date().toISOString() },
+      { id: 29, name: 'Space Halo', type: 'avatar', price: 350, description: 'Cosmic space ring', image_url: '/avatars/space.png', level_required: 15, created_at: new Date().toISOString() },
+      { id: 30, name: 'Diamond Crust', type: 'avatar', price: 500, description: 'Ultra premium diamond frame', image_url: '/avatars/diamond.png', level_required: 20, created_at: new Date().toISOString() },
+
+      // === SPECIAL THEMES ===
+      { id: 31, name: 'Retro Wave', type: 'theme', price: 300, description: '80s synthwave aesthetic', image_url: '/themes/retro.jpg', level_required: 13, created_at: new Date().toISOString() },
+      { id: 32, name: 'Minimalist White', type: 'theme', price: 250, description: 'Clean minimal design', image_url: '/themes/minimal.jpg', level_required: 11, created_at: new Date().toISOString() },
+      { id: 33, name: 'Gaming RGB', type: 'theme', price: 275, description: 'RGB gaming setup vibes', image_url: '/themes/gaming.jpg', level_required: 12, created_at: new Date().toISOString() },
+      { id: 34, name: 'Coffee Shop', type: 'theme', price: 200, description: 'Warm coffee house atmosphere', image_url: '/themes/coffee.jpg', level_required: 9, created_at: new Date().toISOString() },
+      { id: 35, name: 'Beach Sunset', type: 'theme', price: 225, description: 'Tropical beach sunset', image_url: '/themes/beach.jpg', level_required: 10, created_at: new Date().toISOString() },
     ];
 
     // Initialize achievements
@@ -37,6 +74,10 @@ const initializeMockData = () => {
       { id: 2, name: 'Getting Started', description: 'Complete 5 sessions', badge_emoji: '🌟', category: 'milestones', requirement_type: 'sessions', requirement_value: 5, experience_reward: 25, created_at: new Date().toISOString() },
       { id: 3, name: 'Streak Starter', description: 'Achieve a 3-day streak', badge_emoji: '🔥', category: 'consistency', requirement_type: 'streak', requirement_value: 3, experience_reward: 20, created_at: new Date().toISOString() },
       { id: 4, name: 'Social Butterfly', description: 'Add your first friend', badge_emoji: '🦋', category: 'social', requirement_type: 'friends', requirement_value: 1, experience_reward: 15, created_at: new Date().toISOString() },
+      { id: 5, name: 'Store Explorer', description: 'Purchase your first item', badge_emoji: '🛒', category: 'milestones', requirement_type: 'sessions', requirement_value: 10, experience_reward: 15, created_at: new Date().toISOString() },
+      { id: 6, name: 'Fashion Icon', description: 'Own 5 different items', badge_emoji: '👗', category: 'social', requirement_type: 'sessions', requirement_value: 25, experience_reward: 30, created_at: new Date().toISOString() },
+      { id: 7, name: 'Level Master', description: 'Reach level 10', badge_emoji: '🎯', category: 'milestones', requirement_type: 'sessions', requirement_value: 50, experience_reward: 50, created_at: new Date().toISOString() },
+      { id: 8, name: 'Consistency King', description: 'Maintain a 7-day streak', badge_emoji: '🏅', category: 'consistency', requirement_type: 'streak', requirement_value: 7, experience_reward: 40, created_at: new Date().toISOString() },
     ];
 
     setStorageItem('crankerz_store_items', defaultStoreItems);
@@ -44,6 +85,34 @@ const initializeMockData = () => {
     setStorageItem('crankerz_users', []);
     setStorageItem('crankerz_sessions', []);
     setStorageItem('crankerz_initialized', true);
+  }
+};
+
+// Special function to give "Absurd Crankers" account all items for testing
+const giveAllItemsToTestAccount = (user: User) => {
+  if (user.username.toLowerCase() === 'absurd crankers' || user.username.toLowerCase() === 'absurdcrankers') {
+    const allItems = getStorageItem('crankerz_store_items', []);
+    const allItemIds = allItems.map((item: StoreItem) => item.id);
+    setStorageItem(`crankerz_purchases_${user.id}`, allItemIds);
+    
+    // Also give them some premium badges
+    const premiumBadges = ['🔥', '👑', '💎', '🚀', '⚡', '🎯', '🏆', '🌟', '🎪', '🔮'];
+    user.badges = JSON.stringify(premiumBadges);
+    
+    // Set high level and experience for testing
+    user.level = 25;
+    user.experience = 6250; // 25^2 * 10
+    user.total_sessions = 500; // Lots of points to spend
+    
+    setStorageItem('crankerz_current_user', user);
+    
+    // Update user in users array
+    const users = getStorageItem('crankerz_users', []);
+    const userIndex = users.findIndex((u: User) => u.id === user.id);
+    if (userIndex !== -1) {
+      users[userIndex] = user;
+      setStorageItem('crankerz_users', users);
+    }
   }
 };
 
@@ -86,9 +155,12 @@ export const mockAuthAPI = {
     setStorageItem('crankerz_users', users);
     setStorageItem('crankerz_current_user', newUser);
 
+    // Give special test account all items
+    giveAllItemsToTestAccount(newUser);
+
     return {
       token: 'mock-jwt-token-' + newUser.id,
-      user: newUser
+      user: getStorageItem('crankerz_current_user') // Get updated user
     };
   },
 
@@ -104,9 +176,12 @@ export const mockAuthAPI = {
 
     setStorageItem('crankerz_current_user', user);
 
+    // Give special test account all items
+    giveAllItemsToTestAccount(user);
+
     return {
       token: 'mock-jwt-token-' + user.id,
-      user
+      user: getStorageItem('crankerz_current_user') // Get updated user
     };
   },
 };
