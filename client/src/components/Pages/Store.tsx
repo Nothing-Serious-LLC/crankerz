@@ -11,6 +11,7 @@ const StoreContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  overflow-x: hidden; /* prevent white bar */
 `;
 
 const CategorySection = styled.div`
@@ -109,8 +110,9 @@ const Tab = styled.button<{ active: boolean }>`
 
 const ItemsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 20px;
+  box-sizing: border-box;
 `;
 
 const ItemCard = styled.div<{ owned: boolean; available: boolean }>`
