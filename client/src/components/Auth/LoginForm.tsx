@@ -132,8 +132,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   return (
     <FormContainer>
       <FormCard>
-        <Title>🍆 FapTracker</Title>
-        <Subtitle>Track your sessions with the bros</Subtitle>
+        <Title>🍆 Crankerz</Title>
+        <Subtitle>Level up with the crew</Subtitle>
         
         {error && <ErrorMessage>{error}</ErrorMessage>}
         

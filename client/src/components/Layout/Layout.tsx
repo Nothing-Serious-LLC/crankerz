@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
+import Icon from '@mdi/react';
+import { mdiAccountGroup, mdiHome, mdiStore } from '@mdi/js';
 
 const SkipLink = styled.a`
   position: absolute;
@@ -213,11 +215,15 @@ const NavItem = styled.button<{ active: boolean }>`
 `;
 
 const NavIcon = styled.div`
-  font-size: 1.5rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   @media (max-width: 480px) {
-    font-size: 1.3rem;
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 `;
 
@@ -245,8 +251,8 @@ const ScreenReaderOnly = styled.span`
 
 interface LayoutProps {
   children: React.ReactNode;
-  currentTab: 'home' | 'analytics' | 'community' | 'store';
-  onTabChange: (tab: 'home' | 'analytics' | 'community' | 'store') => void;
+  currentTab: 'community' | 'home' | 'store';
+  onTabChange: (tab: 'community' | 'home' | 'store') => void;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChange }) => {
@@ -260,7 +266,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
     }
   };
 
-  const handleTabChange = (tab: 'home' | 'analytics' | 'community' | 'store') => {
+  const handleTabChange = (tab: 'community' | 'home' | 'store') => {
     onTabChange(tab);
     
     // Announce tab change to screen readers
@@ -278,20 +284,17 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
 
   const getTabLabel = (tab: string) => {
     switch (tab) {
-      case 'home': return 'Home';
-      case 'analytics': return 'Analytics';
       case 'community': return 'Community';
+      case 'home': return 'Home';
       case 'store': return 'Store';
       default: return tab;
     }
   };
 
   return (
-    <LayoutContainer>
-      <SkipLink href="#main-content">Skip to main content</SkipLink>
-      
+    <LayoutContainer>      
       <Header role="banner">
-        <Logo>🍆 FapTracker</Logo>
+        <Logo>🍆 Crankerz</Logo>
         <UserInfo>
           <UserDetails>
             <Username>
@@ -324,42 +327,33 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
 
       <BottomNav role="navigation" aria-label="Main navigation">
         <NavItem 
-          active={currentTab === 'home'} 
-          onClick={() => handleTabChange('home')}
-          aria-label={`${getTabLabel('home')} ${currentTab === 'home' ? '(current page)' : ''}`}
-          aria-current={currentTab === 'home' ? 'page' : undefined}
-          type="button"
-        >
-          <NavIcon role="img" aria-hidden="true">🏠</NavIcon>
-          <NavLabel>Home</NavLabel>
-          <ScreenReaderOnly>
-            {currentTab === 'home' && '(current)'}
-          </ScreenReaderOnly>
-        </NavItem>
-        <NavItem 
-          active={currentTab === 'analytics'} 
-          onClick={() => handleTabChange('analytics')}
-          aria-label={`${getTabLabel('analytics')} ${currentTab === 'analytics' ? '(current page)' : ''}`}
-          aria-current={currentTab === 'analytics' ? 'page' : undefined}
-          type="button"
-        >
-          <NavIcon role="img" aria-hidden="true">📊</NavIcon>
-          <NavLabel>Analytics</NavLabel>
-          <ScreenReaderOnly>
-            {currentTab === 'analytics' && '(current)'}
-          </ScreenReaderOnly>
-        </NavItem>
-        <NavItem 
           active={currentTab === 'community'} 
           onClick={() => handleTabChange('community')}
           aria-label={`${getTabLabel('community')} ${currentTab === 'community' ? '(current page)' : ''}`}
           aria-current={currentTab === 'community' ? 'page' : undefined}
           type="button"
         >
-          <NavIcon role="img" aria-hidden="true">👥</NavIcon>
+          <NavIcon role="img" aria-hidden="true">
+            <Icon path={mdiAccountGroup} size={1} color={currentTab === 'community' ? '#667eea' : '#666'} />
+          </NavIcon>
           <NavLabel>Community</NavLabel>
           <ScreenReaderOnly>
             {currentTab === 'community' && '(current)'}
+          </ScreenReaderOnly>
+        </NavItem>
+        <NavItem 
+          active={currentTab === 'home'} 
+          onClick={() => handleTabChange('home')}
+          aria-label={`${getTabLabel('home')} ${currentTab === 'home' ? '(current page)' : ''}`}
+          aria-current={currentTab === 'home' ? 'page' : undefined}
+          type="button"
+        >
+          <NavIcon role="img" aria-hidden="true">
+            <Icon path={mdiHome} size={1} color={currentTab === 'home' ? '#667eea' : '#666'} />
+          </NavIcon>
+          <NavLabel>Home</NavLabel>
+          <ScreenReaderOnly>
+            {currentTab === 'home' && '(current)'}
           </ScreenReaderOnly>
         </NavItem>
         <NavItem 
@@ -369,7 +363,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
           aria-current={currentTab === 'store' ? 'page' : undefined}
           type="button"
         >
-          <NavIcon role="img" aria-hidden="true">🛒</NavIcon>
+          <NavIcon role="img" aria-hidden="true">
+            <Icon path={mdiStore} size={1} color={currentTab === 'store' ? '#667eea' : '#666'} />
+          </NavIcon>
           <NavLabel>Store</NavLabel>
           <ScreenReaderOnly>
             {currentTab === 'store' && '(current)'}

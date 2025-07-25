@@ -21,7 +21,7 @@ const setStorageItem = (key: string, value: any) => {
 
 // Mock data initialization
 const initializeMockData = () => {
-  if (!getStorageItem('faptracker_initialized')) {
+  if (!getStorageItem('crankerz_initialized')) {
     // Initialize default store items
     const defaultStoreItems: StoreItem[] = [
       { id: 1, name: 'Fire Theme', type: 'skin', price: 100, description: 'Hot red and orange theme', image_url: '/skins/fire.jpg', level_required: 1, created_at: new Date().toISOString() },
@@ -39,11 +39,11 @@ const initializeMockData = () => {
       { id: 4, name: 'Social Butterfly', description: 'Add your first friend', badge_emoji: '🦋', category: 'social', requirement_type: 'friends', requirement_value: 1, experience_reward: 15, created_at: new Date().toISOString() },
     ];
 
-    setStorageItem('faptracker_store_items', defaultStoreItems);
-    setStorageItem('faptracker_achievements', defaultAchievements);
-    setStorageItem('faptracker_users', []);
-    setStorageItem('faptracker_sessions', []);
-    setStorageItem('faptracker_initialized', true);
+    setStorageItem('crankerz_store_items', defaultStoreItems);
+    setStorageItem('crankerz_achievements', defaultAchievements);
+    setStorageItem('crankerz_users', []);
+    setStorageItem('crankerz_sessions', []);
+    setStorageItem('crankerz_initialized', true);
   }
 };
 
@@ -61,7 +61,7 @@ export const mockAuthAPI = {
   register: async (username: string, password: string, country: string): Promise<AuthResponse> => {
     await delay(500); // Simulate network delay
     
-    const users = getStorageItem('faptracker_users', []);
+    const users = getStorageItem('crankerz_users', []);
     
     if (users.find((u: User) => u.username.toLowerCase() === username.toLowerCase())) {
       throw new Error('Username already exists');
@@ -83,8 +83,8 @@ export const mockAuthAPI = {
     };
 
     users.push(newUser);
-    setStorageItem('faptracker_users', users);
-    setStorageItem('faptracker_current_user', newUser);
+    setStorageItem('crankerz_users', users);
+    setStorageItem('crankerz_current_user', newUser);
 
     return {
       token: 'mock-jwt-token-' + newUser.id,
@@ -95,14 +95,14 @@ export const mockAuthAPI = {
   login: async (username: string, password: string): Promise<AuthResponse> => {
     await delay(500);
     
-    const users = getStorageItem('faptracker_users', []);
+    const users = getStorageItem('crankerz_users', []);
     const user = users.find((u: User) => u.username.toLowerCase() === username.toLowerCase());
     
     if (!user) {
       throw new Error('Invalid credentials');
     }
 
-    setStorageItem('faptracker_current_user', user);
+    setStorageItem('crankerz_current_user', user);
 
     return {
       token: 'mock-jwt-token-' + user.id,
@@ -116,7 +116,7 @@ export const mockUserAPI = {
   getProfile: async (): Promise<User> => {
     await delay(200);
     
-    const user = getStorageItem('faptracker_current_user');
+    const user = getStorageItem('crankerz_current_user');
     if (!user) throw new Error('User not found');
 
     // Add level progression info
@@ -140,10 +140,10 @@ export const mockSessionAPI = {
   addSession: async (notes?: string): Promise<SessionResponse> => {
     await delay(300);
     
-    const user = getStorageItem('faptracker_current_user');
+    const user = getStorageItem('crankerz_current_user');
     if (!user) throw new Error('User not found');
 
-    const sessions = getStorageItem('faptracker_sessions', []);
+    const sessions = getStorageItem('crankerz_sessions', []);
     const newSession = {
       id: generateId(),
       user_id: user.id,
@@ -154,7 +154,7 @@ export const mockSessionAPI = {
     };
 
     sessions.push(newSession);
-    setStorageItem('faptracker_sessions', sessions);
+    setStorageItem('crankerz_sessions', sessions);
 
     // Update user stats
     user.total_sessions += 1;
@@ -174,13 +174,13 @@ export const mockSessionAPI = {
     user.current_streak = Math.min(recentSessions.length, 7);
     user.longest_streak = Math.max(user.longest_streak, user.current_streak);
 
-    const users = getStorageItem('faptracker_users', []);
+    const users = getStorageItem('crankerz_users', []);
     const userIndex = users.findIndex((u: User) => u.id === user.id);
     if (userIndex !== -1) {
       users[userIndex] = user;
-      setStorageItem('faptracker_users', users);
+      setStorageItem('crankerz_users', users);
     }
-    setStorageItem('faptracker_current_user', user);
+    setStorageItem('crankerz_current_user', user);
 
     return {
       id: newSession.id,
@@ -194,10 +194,10 @@ export const mockAnalyticsAPI = {
   getUserAnalytics: async (): Promise<Analytics> => {
     await delay(400);
     
-    const user = getStorageItem('faptracker_current_user');
+    const user = getStorageItem('crankerz_current_user');
     if (!user) throw new Error('User not found');
 
-    const sessions = getStorageItem('faptracker_sessions', [])
+    const sessions = getStorageItem('crankerz_sessions', [])
       .filter((s: any) => s.user_id === user.id);
 
     const dayCounts = new Array(7).fill(0);
@@ -253,8 +253,8 @@ export const mockAchievementAPI = {
   getAchievements: async (): Promise<AchievementsResponse> => {
     await delay(300);
     
-    const user = getStorageItem('faptracker_current_user');
-    const allAchievements = getStorageItem('faptracker_achievements', []);
+    const user = getStorageItem('crankerz_current_user');
+    const allAchievements = getStorageItem('crankerz_achievements', []);
     const unlockedIds = JSON.parse(user?.unlocked_achievements || '[]');
     
     const unlocked = allAchievements.filter((a: Achievement) => unlockedIds.includes(a.id));
@@ -287,7 +287,7 @@ export const mockLeaderboardAPI = {
   getGlobal: async (): Promise<LeaderboardEntry[]> => {
     await delay(400);
     
-    const users = getStorageItem('faptracker_users', []);
+    const users = getStorageItem('crankerz_users', []);
     return users
       .sort((a: User, b: User) => b.total_sessions - a.total_sessions)
       .slice(0, 10)
@@ -303,7 +303,7 @@ export const mockLeaderboardAPI = {
   getCountry: async (country: string): Promise<LeaderboardEntry[]> => {
     await delay(400);
     
-    const users = getStorageItem('faptracker_users', []);
+    const users = getStorageItem('crankerz_users', []);
     return users
       .filter((user: User) => user.country === country)
       .sort((a: User, b: User) => b.total_sessions - a.total_sessions)
@@ -329,8 +329,8 @@ export const mockStoreAPI = {
   getItems: async (): Promise<StoreItem[]> => {
     await delay(300);
     
-    const user = getStorageItem('faptracker_current_user');
-    const items = getStorageItem('faptracker_store_items', []);
+    const user = getStorageItem('crankerz_current_user');
+    const items = getStorageItem('crankerz_store_items', []);
     
     return items.map((item: StoreItem) => ({
       ...item,
@@ -342,9 +342,9 @@ export const mockStoreAPI = {
   getPurchases: async (): Promise<StoreItem[]> => {
     await delay(200);
     
-    const user = getStorageItem('faptracker_current_user');
-    const purchases = getStorageItem(`faptracker_purchases_${user.id}`, []);
-    const items = getStorageItem('faptracker_store_items', []);
+    const user = getStorageItem('crankerz_current_user');
+    const purchases = getStorageItem(`crankerz_purchases_${user.id}`, []);
+    const items = getStorageItem('crankerz_store_items', []);
     
     return items.filter((item: StoreItem) => purchases.includes(item.id));
   },
@@ -352,19 +352,19 @@ export const mockStoreAPI = {
   purchaseItem: async (itemId: number): Promise<{ message: string }> => {
     await delay(300);
     
-    const user = getStorageItem('faptracker_current_user');
-    const items = getStorageItem('faptracker_store_items', []);
+    const user = getStorageItem('crankerz_current_user');
+    const items = getStorageItem('crankerz_store_items', []);
     const item = items.find((i: StoreItem) => i.id === itemId);
     
     if (!item) throw new Error('Item not found');
     if (user.level < item.level_required) throw new Error(`Level ${item.level_required} required`);
     if (user.total_sessions < item.price) throw new Error('Insufficient points');
     
-    const purchases = getStorageItem(`faptracker_purchases_${user.id}`, []);
+    const purchases = getStorageItem(`crankerz_purchases_${user.id}`, []);
     if (purchases.includes(itemId)) throw new Error('Item already owned');
     
     purchases.push(itemId);
-    setStorageItem(`faptracker_purchases_${user.id}`, purchases);
+    setStorageItem(`crankerz_purchases_${user.id}`, purchases);
     
     return { message: 'Item purchased successfully!' };
   },

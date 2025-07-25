@@ -1,25 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { LoginForm } from './components/Auth/LoginForm';
-import { RegisterForm } from './components/Auth/RegisterForm';
+import React, { useState } from 'react';
+import { AuthProvider } from './context/AuthContext';
+import { AuthWrapper } from './components/Auth/AuthWrapper';
 import { Home } from './components/Pages/Home';
 import { Community } from './components/Pages/Community';
-import { AnalyticsPage } from './components/Pages/Analytics';
 import { Store } from './components/Pages/Store';
 import { Layout } from './components/Layout/Layout';
+import { useAuth } from './context/AuthContext';
 import './App.css';
 
-type Tab = 'home' | 'community' | 'analytics' | 'store';
-
-const AuthWrapper: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
-
-  return isLogin ? (
-    <LoginForm onSwitchToRegister={() => setIsLogin(false)} />
-  ) : (
-    <RegisterForm onSwitchToLogin={() => setIsLogin(true)} />
-  );
-};
+type Tab = 'community' | 'home' | 'store';
 
 const MainApp: React.FC = () => {
   const { user, isLoading } = useAuth();
@@ -51,8 +40,6 @@ const MainApp: React.FC = () => {
         return <Home />;
       case 'community':
         return <Community />;
-      case 'analytics':
-        return <AnalyticsPage />;
       case 'store':
         return <Store />;
       default:

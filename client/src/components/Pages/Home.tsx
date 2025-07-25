@@ -1,48 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
-import { sessionAPI, userAPI, achievementAPI } from '../../services/api';
-import { Achievement } from '../../types';
+import { sessionAPI, userAPI, achievementAPI, analyticsAPI } from '../../services/api';
+import { Achievement, Analytics as AnalyticsData } from '../../types';
+import Icon from '@mdi/react';
+import { mdiChevronDown, mdiChevronUp, mdiChartLine } from '@mdi/js';
 
 const HomeContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
   max-width: 500px;
   margin: 0 auto;
+  padding: 0 20px;
 `;
 
-const LevelCard = styled.div`
+const LevelSection = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
-  padding: 25px;
+  padding: 20px;
   width: 100%;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   text-align: center;
 `;
 
-const LevelInfo = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
-`;
-
 const LevelBadge = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 10px 20px;
+  padding: 15px 25px;
   border-radius: 25px;
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  display: inline-block;
 `;
 
-const ExperienceText = styled.div`
+const ExperienceInfo = styled.div`
   color: #666;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  margin-bottom: 15px;
 `;
 
 const ExperienceBar = styled.div`
@@ -62,66 +60,26 @@ const ExperienceProgress = styled.div<{ percentage: number }>`
   border-radius: 6px;
 `;
 
-const StatsCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 30px;
-  width: 100%;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-`;
-
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-bottom: 20px;
-`;
-
-const StatItem = styled.div`
-  text-align: center;
-`;
-
-const StatNumber = styled.div`
-  font-size: 2rem;
-  font-weight: 700;
-  color: #667eea;
-  margin-bottom: 5px;
-`;
-
-const StatLabel = styled.div`
-  font-size: 0.9rem;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`;
-
-const WelcomeText = styled.h2`
-  text-align: center;
-  color: #333;
-  margin: 0 0 20px 0;
-  font-size: 1.5rem;
-`;
-
 const CheckInSection = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
-  padding: 40px;
+  padding: 30px;
   width: 100%;
   text-align: center;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 `;
 
 const CheckInButton = styled.button<{ skin?: string }>`
-  width: 200px;
+  width: 120px;
   height: 200px;
-  border-radius: 50%;
+  border-radius: 60px 60px 50px 50px;
   border: none;
-  font-size: 4rem;
+  font-size: 3rem;
   cursor: pointer;
   transition: all 0.3s;
-  margin-bottom: 20px;
+  margin: 20px 0;
+  position: relative;
   
   ${props => {
     switch (props.skin) {
@@ -166,12 +124,30 @@ const CheckInButton = styled.button<{ skin?: string }>`
     cursor: not-allowed;
     transform: none;
   }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 30px;
+    background: inherit;
+    border-radius: 20px 20px 15px 15px;
+  }
 `;
 
 const CheckInText = styled.p`
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #666;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+`;
+
+const CheckInLabel = styled.div`
+  font-weight: 600;
+  color: #333;
+  margin-top: 10px;
 `;
 
 const SuccessMessage = styled.div`
@@ -187,6 +163,36 @@ const LastSessionText = styled.p`
   color: #888;
   font-size: 0.9rem;
   margin-top: 15px;
+`;
+
+const StatsGrid = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 25px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+`;
+
+const StatItem = styled.div`
+  text-align: center;
+`;
+
+const StatNumber = styled.div`
+  font-size: 2rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 5px;
+`;
+
+const StatLabel = styled.div`
+  font-size: 0.9rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const RecentAchievements = styled.div`
@@ -240,12 +246,90 @@ const AchievementReward = styled.div`
   font-weight: 600;
 `;
 
+const AnalyticsSection = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 25px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+`;
+
+const AnalyticsHeader = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 20px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+
+  &:hover {
+    color: #667eea;
+  }
+`;
+
+const AnalyticsContent = styled.div<{ expanded: boolean }>`
+  max-height: ${props => props.expanded ? '1000px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+`;
+
+const AnalyticsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+`;
+
+const AnalyticsItem = styled.div`
+  text-align: center;
+  padding: 15px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 12px;
+`;
+
+const AnalyticsNumber = styled.div`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 5px;
+`;
+
+const AnalyticsLabel = styled.div`
+  font-size: 0.8rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const InsightsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const InsightItem = styled.div`
+  padding: 10px 15px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #555;
+`;
+
 export const Home: React.FC = () => {
   const { user, updateUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [canCheckIn, setCanCheckIn] = useState(true);
   const [recentAchievements, setRecentAchievements] = useState<Achievement[]>([]);
+  const [analyticsExpanded, setAnalyticsExpanded] = useState(false);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
 
   useEffect(() => {
     // Check if user has already checked in today
@@ -259,8 +343,9 @@ export const Home: React.FC = () => {
       }
     }
 
-    // Load recent achievements
+    // Load recent achievements and analytics
     loadRecentAchievements();
+    loadAnalytics();
   }, [user]);
 
   const loadRecentAchievements = async () => {
@@ -271,6 +356,37 @@ export const Home: React.FC = () => {
     } catch (error) {
       console.error('Failed to load achievements:', error);
     }
+  };
+
+  const loadAnalytics = async () => {
+    try {
+      const data = await analyticsAPI.getUserAnalytics();
+      setAnalytics(data);
+    } catch (error) {
+      console.error('Failed to load analytics:', error);
+    }
+  };
+
+  const generateInsights = (data: AnalyticsData) => {
+    const insights = [];
+    
+    if (data.patterns.bestDay) {
+      insights.push(`Most active day: ${data.patterns.bestDay}`);
+    }
+    
+    if (data.consistencyScore > 80) {
+      insights.push('Consistency champion! 🏆');
+    } else if (data.consistencyScore > 60) {
+      insights.push('Good consistency! 👍');
+    } else {
+      insights.push('Keep building consistency 📈');
+    }
+    
+    if (data.basicStats.current_streak >= 7) {
+      insights.push(`${data.basicStats.current_streak}-day streak! 🔥`);
+    }
+
+    return insights.slice(0, 3); // Show max 3 insights
   };
 
   const handleCheckIn = async () => {
@@ -305,12 +421,12 @@ export const Home: React.FC = () => {
 
   const getMotivationalMessage = () => {
     const messages = [
-      "Ready for another session? 😏",
-      "Time to update your stats! 💪",
-      "Your bros are waiting! 🔥",
+      "Ready to level up? 😏",
+      "Time to gain some XP! 💪", 
+      "Your crew is waiting! 🔥",
       "Keep the streak alive! ⚡",
       "Show them who's boss! 👑",
-      "Level up your game! 🚀",
+      "Climb the ranks! 🚀",
       "Earn that XP! 💎"
     ];
     return messages[Math.floor(Math.random() * messages.length)];
@@ -318,49 +434,27 @@ export const Home: React.FC = () => {
 
   return (
     <HomeContainer>
-      <LevelCard>
-        <LevelInfo>
-          <LevelBadge>Level {user?.level || 1}</LevelBadge>
-          <ExperienceText>{user?.experience || 0} XP</ExperienceText>
-        </LevelInfo>
+      {/* Level Section at Top */}
+      <LevelSection>
+        <LevelBadge>Level {user?.level || 1}</LevelBadge>
+        <ExperienceInfo>{user?.experience || 0} XP</ExperienceInfo>
         
         {user?.levelProgress && (
           <>
             <ExperienceBar>
               <ExperienceProgress percentage={user.levelProgress.percentage} />
             </ExperienceBar>
-            <ExperienceText>
+            <ExperienceInfo>
               {user.levelProgress.current} / {user.levelProgress.needed} XP to next level
-            </ExperienceText>
+            </ExperienceInfo>
           </>
         )}
-      </LevelCard>
+      </LevelSection>
 
-      <StatsCard>
-        <WelcomeText>Welcome back, {user?.username}! 👋</WelcomeText>
-        <StatsGrid>
-          <StatItem>
-            <StatNumber>{user?.total_sessions || 0}</StatNumber>
-            <StatLabel>Total Sessions</StatLabel>
-          </StatItem>
-          <StatItem>
-            <StatNumber>{user?.current_streak || 0}</StatNumber>
-            <StatLabel>Current Streak</StatLabel>
-          </StatItem>
-          <StatItem>
-            <StatNumber>{user?.longest_streak || 0}</StatNumber>
-            <StatLabel>Best Streak</StatLabel>
-          </StatItem>
-          <StatItem>
-            <StatNumber>{user?.country || 'Unknown'}</StatNumber>
-            <StatLabel>Country</StatLabel>
-          </StatItem>
-        </StatsGrid>
-      </StatsCard>
-
+      {/* Check-in Section in Middle */}
       <CheckInSection>
         <CheckInText>
-          {canCheckIn ? getMotivationalMessage() : "Already checked in today! 🎉"}
+          {canCheckIn ? getMotivationalMessage() : "Already cranked today! 🎉"}
         </CheckInText>
         
         <CheckInButton
@@ -371,11 +465,9 @@ export const Home: React.FC = () => {
           {isLoading ? '⏳' : canCheckIn ? '🍆' : '✅'}
         </CheckInButton>
         
-        <div>
-          <strong>
-            {canCheckIn ? 'Tap to check in!' : 'Come back tomorrow!'}
-          </strong>
-        </div>
+        <CheckInLabel>
+          {canCheckIn ? 'Tap to Crank!' : 'Come back tomorrow!'}
+        </CheckInLabel>
         
         {successMessage && (
           <SuccessMessage>{successMessage}</SuccessMessage>
@@ -388,6 +480,63 @@ export const Home: React.FC = () => {
         )}
       </CheckInSection>
 
+      {/* Stats Section Below */}
+      <StatsGrid>
+        <StatItem>
+          <StatNumber>{user?.total_sessions || 0}</StatNumber>
+          <StatLabel>Total Sessions</StatLabel>
+        </StatItem>
+        <StatItem>
+          <StatNumber>{user?.current_streak || 0}</StatNumber>
+          <StatLabel>Current Streak</StatLabel>
+        </StatItem>
+        <StatItem>
+          <StatNumber>{user?.longest_streak || 0}</StatNumber>
+          <StatLabel>Best Streak</StatLabel>
+        </StatItem>
+        <StatItem>
+          <StatNumber>{user?.country || 'Unknown'}</StatNumber>
+          <StatLabel>Country</StatLabel>
+        </StatItem>
+      </StatsGrid>
+
+      {/* Analytics Section */}
+      {analytics && (
+        <AnalyticsSection>
+          <AnalyticsHeader onClick={() => setAnalyticsExpanded(!analyticsExpanded)}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Icon path={mdiChartLine} size={1} color="#667eea" />
+              <span>Your Analytics</span>
+            </div>
+            <Icon 
+              path={analyticsExpanded ? mdiChevronUp : mdiChevronDown} 
+              size={1} 
+              color="#667eea" 
+            />
+          </AnalyticsHeader>
+          
+          <AnalyticsContent expanded={analyticsExpanded}>
+            <AnalyticsGrid>
+              <AnalyticsItem>
+                <AnalyticsNumber>Level {analytics.basicStats.level}</AnalyticsNumber>
+                <AnalyticsLabel>Current Level</AnalyticsLabel>
+              </AnalyticsItem>
+              <AnalyticsItem>
+                <AnalyticsNumber>{analytics.consistencyScore}%</AnalyticsNumber>
+                <AnalyticsLabel>Consistency</AnalyticsLabel>
+              </AnalyticsItem>
+            </AnalyticsGrid>
+            
+            <InsightsList>
+              {generateInsights(analytics).map((insight, index) => (
+                <InsightItem key={index}>{insight}</InsightItem>
+              ))}
+            </InsightsList>
+          </AnalyticsContent>
+        </AnalyticsSection>
+      )}
+
+      {/* Recent Achievements */}
       {recentAchievements.length > 0 && (
         <RecentAchievements>
           <h3 style={{ marginBottom: '20px', color: '#333' }}>🏆 Recent Achievements</h3>

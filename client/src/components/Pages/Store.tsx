@@ -358,7 +358,7 @@ export const Store: React.FC = () => {
   return (
     <StoreContainer>
       <StoreHeader>
-        <StoreTitle>🛒 FapTracker Store</StoreTitle>
+        <StoreTitle>🛒 Crankerz Store</StoreTitle>
         <StoreSubtitle>Customize your experience with exclusive items!</StoreSubtitle>
         <UserStats>
           <StatItem>
