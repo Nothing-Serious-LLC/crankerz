@@ -330,23 +330,52 @@ export const Home: React.FC = () => {
   const [recentAchievements, setRecentAchievements] = useState<Achievement[]>([]);
   const [analyticsExpanded, setAnalyticsExpanded] = useState(false);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [timeUntilNext, setTimeUntilNext] = useState<number>(0);
 
   useEffect(() => {
-    // Check if user has already checked in today
-    if (user?.last_session) {
-      const lastSession = new Date(user.last_session);
-      const today = new Date();
-      const isToday = lastSession.toDateString() === today.toDateString();
-      
-      if (isToday) {
-        setCanCheckIn(false);
+    // Check if 5 minutes have passed since last check-in
+    const checkCanCheckIn = () => {
+      if (user?.last_session) {
+        const lastSession = new Date(user.last_session);
+        const now = new Date();
+        const timeDiff = now.getTime() - lastSession.getTime();
+        const fiveMinutesInMs = 5 * 60 * 1000; // 5 minutes in milliseconds
+        
+        if (timeDiff < fiveMinutesInMs) {
+          setCanCheckIn(false);
+          const remainingTime = Math.ceil((fiveMinutesInMs - timeDiff) / 1000);
+          setTimeUntilNext(remainingTime);
+        } else {
+          setCanCheckIn(true);
+          setTimeUntilNext(0);
+        }
+      } else {
+        setCanCheckIn(true);
+        setTimeUntilNext(0);
       }
-    }
+    };
+
+    checkCanCheckIn();
+
+    // Update timer every second when user can't check in
+    const interval = setInterval(() => {
+      if (!canCheckIn && timeUntilNext > 0) {
+        setTimeUntilNext(prev => {
+          if (prev <= 1) {
+            setCanCheckIn(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
+    }, 1000);
 
     // Load recent achievements and analytics
     loadRecentAchievements();
     loadAnalytics();
-  }, [user]);
+
+    return () => clearInterval(interval);
+  }, [user, canCheckIn, timeUntilNext]);
 
   const loadRecentAchievements = async () => {
     try {
@@ -406,7 +435,9 @@ export const Home: React.FC = () => {
       // Refresh achievements in case new ones were unlocked
       loadRecentAchievements();
       
+      // Set cooldown period
       setCanCheckIn(false);
+      setTimeUntilNext(300); // 5 minutes = 300 seconds
     } catch (error) {
       console.error('Check-in failed:', error);
     } finally {
@@ -419,7 +450,17 @@ export const Home: React.FC = () => {
     return date.toLocaleDateString() + ' at ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const formatTimeRemaining = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   const getMotivationalMessage = () => {
+    if (!canCheckIn && timeUntilNext > 0) {
+      return `Ready to crank again in ${formatTimeRemaining(timeUntilNext)} ⏰`;
+    }
+    
     const messages = [
       "Ready to level up? 😏",
       "Time to gain some XP! 💪", 
@@ -454,7 +495,7 @@ export const Home: React.FC = () => {
       {/* Check-in Section in Middle */}
       <CheckInSection>
         <CheckInText>
-          {canCheckIn ? getMotivationalMessage() : "Already cranked today! 🎉"}
+          {getMotivationalMessage()}
         </CheckInText>
         
         <CheckInButton
@@ -462,11 +503,11 @@ export const Home: React.FC = () => {
           onClick={handleCheckIn}
           disabled={!canCheckIn || isLoading}
         >
-          {isLoading ? '⏳' : canCheckIn ? '🍆' : '✅'}
+          {isLoading ? '⏳' : canCheckIn ? '🍆' : '🔒'}
         </CheckInButton>
         
         <CheckInLabel>
-          {canCheckIn ? 'Tap to Crank!' : 'Come back tomorrow!'}
+          {canCheckIn ? 'Tap to Crank!' : timeUntilNext > 0 ? `Recharging... ${formatTimeRemaining(timeUntilNext)}` : 'Ready to Crank!'}
         </CheckInLabel>
         
         {successMessage && (
