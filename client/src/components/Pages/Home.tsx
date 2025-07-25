@@ -17,13 +17,8 @@ const HomeContainer = styled.div`
 `;
 
 const LevelSection = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 20px;
-  width: 100%;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   text-align: center;
+  margin-bottom: 10px;
 `;
 
 const LevelBadge = styled.div`
@@ -61,21 +56,16 @@ const ExperienceProgress = styled.div<{ percentage: number }>`
 `;
 
 const CheckInSection = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 30px;
-  width: 100%;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  width: 100%;
 `;
 
 const CheckInButton = styled.button<{ skin?: string }>`
-  width: 120px;
+  width: 140px;
   height: 200px;
   border-radius: 60px 60px 50px 50px;
   border: none;
-  font-size: 3rem;
+  font-size: 0; /* hide text */
   cursor: pointer;
   transition: all 0.3s;
   margin: 20px 0;
@@ -181,6 +171,7 @@ const CheckInButton = styled.button<{ skin?: string }>`
     transform: none;
   }
 
+  /* shaft head */
   &::before {
     content: '';
     position: absolute;
@@ -559,7 +550,7 @@ export const Home: React.FC = () => {
           onClick={handleCheckIn}
           disabled={!canCheckIn || isLoading}
         >
-          {isLoading ? '⏳' : canCheckIn ? '🍆' : '🔒'}
+          {isLoading ? '⏳' : canCheckIn ? '' : '🔒'}
         </CheckInButton>
         
         <CheckInLabel>
@@ -596,42 +587,6 @@ export const Home: React.FC = () => {
           <StatLabel>Country</StatLabel>
         </StatItem>
       </StatsGrid>
-
-      {/* Analytics Section */}
-      {analytics && (
-        <AnalyticsSection>
-          <AnalyticsHeader onClick={() => setAnalyticsExpanded(!analyticsExpanded)}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Icon path={mdiChartLine} size={1} color="#667eea" />
-              <span>Your Analytics</span>
-            </div>
-            <Icon 
-              path={analyticsExpanded ? mdiChevronUp : mdiChevronDown} 
-              size={1} 
-              color="#667eea" 
-            />
-          </AnalyticsHeader>
-          
-          <AnalyticsContent expanded={analyticsExpanded}>
-            <AnalyticsGrid>
-              <AnalyticsItem>
-                <AnalyticsNumber>Level {analytics.basicStats.level}</AnalyticsNumber>
-                <AnalyticsLabel>Current Level</AnalyticsLabel>
-              </AnalyticsItem>
-              <AnalyticsItem>
-                <AnalyticsNumber>{analytics.consistencyScore}%</AnalyticsNumber>
-                <AnalyticsLabel>Consistency</AnalyticsLabel>
-              </AnalyticsItem>
-            </AnalyticsGrid>
-            
-            <InsightsList>
-              {generateInsights(analytics).map((insight, index) => (
-                <InsightItem key={index}>{insight}</InsightItem>
-              ))}
-            </InsightsList>
-          </AnalyticsContent>
-        </AnalyticsSection>
-      )}
 
       {/* Recent Achievements */}
       {recentAchievements.length > 0 && (
