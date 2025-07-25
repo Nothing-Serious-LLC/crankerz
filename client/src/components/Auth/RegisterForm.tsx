@@ -165,7 +165,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
   return (
     <FormContainer>
       <FormCard>
-        <Title>🍆 Crankerz</Title>
+        <Title>Crankerz</Title>
         <Subtitle>Join the crew</Subtitle>
         
         {error && <ErrorMessage>{error}</ErrorMessage>}

@@ -388,7 +388,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
   return (
     <LayoutContainer>      
       <Header role="banner">
-        <Logo>🍆 Crankerz</Logo>
+        <Logo>Crankerz</Logo>
         <UserInfo>
           <UserDetails>
             <Username>
