@@ -4,11 +4,12 @@ import { AuthWrapper } from './components/Auth/AuthWrapper';
 import { Home } from './components/Pages/Home';
 import { Community } from './components/Pages/Community';
 import { Store } from './components/Pages/Store';
+import { Profile } from './components/Pages/Profile';
 import { Layout } from './components/Layout/Layout';
 import { useAuth } from './context/AuthContext';
 import './App.css';
 
-type Tab = 'community' | 'home' | 'store';
+type Tab = 'community' | 'home' | 'store' | 'profile';
 
 const MainApp: React.FC = () => {
   const { user, isLoading } = useAuth();
@@ -42,6 +43,8 @@ const MainApp: React.FC = () => {
         return <Community />;
       case 'store':
         return <Store />;
+      case 'profile':
+        return <Profile />;
       default:
         return <Home />;
     }

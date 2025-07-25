@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
 import Icon from '@mdi/react';
-import { mdiAccountGroup, mdiHome, mdiStore } from '@mdi/js';
+import { mdiAccountGroup, mdiHome, mdiStore, mdiAccount } from '@mdi/js';
 
 const SkipLink = styled.a`
   position: absolute;
@@ -249,10 +249,75 @@ const ScreenReaderOnly = styled.span`
   border: 0;
 `;
 
+const ProfileAvatar = styled.button<{ avatarStyle?: string }>`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  background: ${props => props.avatarStyle || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+`;
+
+const BadgeOverlay = styled.div`
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: #4CAF50;
+  border-radius: 50%;
+  border: 2px solid white;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 480px) {
+    width: 14px;
+    height: 14px;
+    font-size: 0.6rem;
+  }
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  @media (max-width: 480px) {
+    gap: 10px;
+  }
+`;
+
 interface LayoutProps {
   children: React.ReactNode;
-  currentTab: 'community' | 'home' | 'store';
-  onTabChange: (tab: 'community' | 'home' | 'store') => void;
+  currentTab: 'community' | 'home' | 'store' | 'profile';
+  onTabChange: (tab: 'community' | 'home' | 'store' | 'profile') => void;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChange }) => {
@@ -266,7 +331,35 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
     }
   };
 
-  const handleTabChange = (tab: 'community' | 'home' | 'store') => {
+  const getProfileAvatar = () => {
+    // Check if user has a custom avatar from store purchases
+    // For now, show first letter of username or default icon
+    const badges = getBadges();
+    
+    // If user has special avatar purchases, show those
+    // For now, show first letter of username with gradient based on level
+    if (user?.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    return <Icon path={mdiAccount} size={0.8} />;
+  };
+
+  const getAvatarStyle = () => {
+    // Customize avatar appearance based on user level or purchases
+    const level = user?.level || 1;
+    
+    if (level >= 20) {
+      return 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'; // Gold
+    } else if (level >= 10) {
+      return 'linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%)'; // Silver
+    } else if (level >= 5) {
+      return 'linear-gradient(135deg, #CD7F32 0%, #B87333 100%)'; // Bronze
+    }
+    
+    return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; // Default
+  };
+
+  const handleTabChange = (tab: 'community' | 'home' | 'store' | 'profile') => {
     onTabChange(tab);
     
     // Announce tab change to screen readers
@@ -287,6 +380,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
       case 'community': return 'Community';
       case 'home': return 'Home';
       case 'store': return 'Store';
+      case 'profile': return 'Profile';
       default: return tab;
     }
   };
@@ -311,13 +405,28 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
             </Username>
             <LevelInfo>Lv.{user?.level || 1}</LevelInfo>
           </UserDetailsMobile>
-          <LogoutButton 
-            onClick={logout}
-            aria-label="Logout from your account"
-            type="button"
-          >
-            Logout
-          </LogoutButton>
+          <HeaderActions>
+            <ProfileAvatar 
+              onClick={() => handleTabChange('profile')}
+              aria-label="Open profile and settings"
+              type="button"
+              avatarStyle={getAvatarStyle()}
+            >
+              {getProfileAvatar()}
+              {getBadges().length > 0 && (
+                <BadgeOverlay aria-label={`${getBadges().length} badges`}>
+                  {getBadges().length}
+                </BadgeOverlay>
+              )}
+            </ProfileAvatar>
+            <LogoutButton 
+              onClick={logout}
+              aria-label="Logout from your account"
+              type="button"
+            >
+              Logout
+            </LogoutButton>
+          </HeaderActions>
         </UserInfo>
       </Header>
 
