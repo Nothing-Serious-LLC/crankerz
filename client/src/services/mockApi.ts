@@ -403,14 +403,20 @@ export const mockLeaderboardAPI = {
 export const mockStoreAPI = {
   getItems: async (): Promise<StoreItem[]> => {
     await delay(300);
-    
-    const user = getStorageItem('crankerz_current_user');
-    const items = getStorageItem('crankerz_store_items', []);
-    
+
+    // Ensure store items exist
+    let items = getStorageItem('crankerz_store_items', []);
+    if (!items || items.length === 0) {
+      initializeMockData();
+      items = getStorageItem('crankerz_store_items', []);
+    }
+
+    // All items are free and available to everyone
     return items.map((item: StoreItem) => ({
       ...item,
-      available: user.level >= item.level_required,
-      levelRequired: item.level_required
+      price: 0,
+      available: true,
+      levelRequired: 0,
     }));
   },
 
@@ -425,23 +431,14 @@ export const mockStoreAPI = {
   },
 
   purchaseItem: async (itemId: number): Promise<{ message: string }> => {
-    await delay(300);
-    
+    await delay(100);
     const user = getStorageItem('crankerz_current_user');
-    const items = getStorageItem('crankerz_store_items', []);
-    const item = items.find((i: StoreItem) => i.id === itemId);
-    
-    if (!item) throw new Error('Item not found');
-    if (user.level < item.level_required) throw new Error(`Level ${item.level_required} required`);
-    if (user.total_sessions < item.price) throw new Error('Insufficient points');
-    
     const purchases = getStorageItem(`crankerz_purchases_${user.id}`, []);
-    if (purchases.includes(itemId)) throw new Error('Item already owned');
-    
-    purchases.push(itemId);
-    setStorageItem(`crankerz_purchases_${user.id}`, purchases);
-    
-    return { message: 'Item purchased successfully!' };
+    if (!purchases.includes(itemId)) {
+      purchases.push(itemId);
+      setStorageItem(`crankerz_purchases_${user.id}`, purchases);
+    }
+    return { message: 'Item added!' };
   },
 };
 
