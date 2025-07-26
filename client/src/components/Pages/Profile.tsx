@@ -33,7 +33,7 @@ const AvatarSection = styled.div`
   text-align: center;
 `;
 
-const LargeAvatar = styled.div<{ level?: number }>`
+const LargeAvatar = styled.div<{ level?: number; avatarFrame?: string }>`
   width: 120px;
   height: 120px;
   border-radius: 50%;
@@ -48,6 +48,33 @@ const LargeAvatar = styled.div<{ level?: number }>`
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   
   ${props => {
+    // Check for equipped avatar frame first
+    if (props.avatarFrame) {
+      switch (props.avatarFrame) {
+        case 'Golden Border':
+          return `background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);`;
+        case 'Silver Frame':
+          return `background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);`;
+        case 'Bronze Ring':
+          return `background: linear-gradient(135deg, #CD7F32 0%, #B8860B 100%);`;
+        case 'Neon Outline':
+          return `background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);`;
+        case 'Fire Ring':
+          return `background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);`;
+        case 'Ice Crown':
+          return `background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);`;
+        case 'Rainbow Arc':
+          return `background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 25%, #45b7d1 50%, #96ceb4 75%, #feca57 100%);`;
+        case 'Dragon Scale':
+          return `background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);`;
+        case 'Space Halo':
+          return `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);`;
+        case 'Diamond Crust':
+          return `background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);`;
+      }
+    }
+    
+    // Fallback to level-based styling
     const level = props.level || 1;
     if (level >= 20) {
       return `background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);`; // Gold
@@ -413,8 +440,16 @@ export const Profile: React.FC = () => {
   const handleEquipItem = async (item: StoreItem) => {
     if (user) {
       const updatedUser = { ...user };
-      if (item.type === 'skin' || item.type === 'theme') {
-        updatedUser.active_skin = item.name;
+      switch (item.type) {
+        case 'theme':
+          updatedUser.equipped_theme = item.name;
+          break;
+        case 'badge':
+          updatedUser.equipped_badge = item.name;
+          break;
+        case 'avatar_frame':
+          updatedUser.equipped_avatar_frame = item.name;
+          break;
       }
       updateUser(updatedUser);
     }
@@ -422,12 +457,12 @@ export const Profile: React.FC = () => {
 
   const isItemEquipped = (item: StoreItem) => {
     switch (item.type) {
-      case 'skin':
       case 'theme':
-        return user?.active_skin === item.name;
+        return user?.equipped_theme === item.name;
       case 'badge':
-        const userBadges = user?.badges ? JSON.parse(user.badges) : [];
-        return userBadges.includes(item.name);
+        return user?.equipped_badge === item.name;
+      case 'avatar_frame':
+        return user?.equipped_avatar_frame === item.name;
       default:
         return false;
     }
@@ -435,12 +470,11 @@ export const Profile: React.FC = () => {
 
   const getItemIcon = (item: StoreItem) => {
     switch (item.type) {
-      case 'skin':
       case 'theme':
         return '🎨';
       case 'badge':
         return item.name.split(' ')[0] || '🏆';
-      case 'avatar':
+      case 'avatar_frame':
         return '🖼️';
       default:
         return '🎨';
@@ -448,7 +482,19 @@ export const Profile: React.FC = () => {
   };
 
   const getProfileAvatar = () => {
-    return user?.username.charAt(0).toUpperCase() || 'U';
+    // Show equipped badge or first letter of username
+    if (user?.equipped_badge) {
+      // Extract emoji from badge name (first character if it's an emoji)
+      const badgeEmoji = user.equipped_badge.charAt(0);
+      // Check if it's an emoji by checking Unicode ranges
+      const emojiRegex = /[\u1F600-\u1F64F]|[\u1F300-\u1F5FF]|[\u1F680-\u1F6FF]|[\u1F1E0-\u1F1FF]|[\u2600-\u26FF]|[\u2700-\u27BF]/;
+      if (badgeEmoji.length > 0 && emojiRegex.test(badgeEmoji)) {
+        return badgeEmoji;
+      }
+    }
+    
+    // Fallback to first letter of username
+    return user?.username?.charAt(0).toUpperCase() || 'U';
   };
 
   const getBadges = () => {
@@ -506,7 +552,7 @@ export const Profile: React.FC = () => {
       {/* Profile Header */}
       <GlassCard>
         <AvatarSection>
-          <LargeAvatar level={user?.level}>
+          <LargeAvatar level={user?.level} avatarFrame={user?.equipped_avatar_frame}>
             {getProfileAvatar()}
           </LargeAvatar>
           <div>
@@ -550,15 +596,21 @@ export const Profile: React.FC = () => {
         <SectionContent expanded={equipmentExpanded}>
           <EquipmentGrid>
             <EquipmentSlot>
-              <SlotLabel>Active Theme</SlotLabel>
+              <SlotLabel>🎮 Theme Slot</SlotLabel>
               <SlotContent>
-                {user?.active_skin || <SlotEmpty>No theme equipped</SlotEmpty>}
+                {user?.equipped_theme || <SlotEmpty>No theme equipped</SlotEmpty>}
               </SlotContent>
             </EquipmentSlot>
             <EquipmentSlot>
-              <SlotLabel>Badges</SlotLabel>
+              <SlotLabel>🏆 Badge Slot</SlotLabel>
               <SlotContent>
-                {getBadges().length > 0 ? `${getBadges().length} equipped` : <SlotEmpty>No badges</SlotEmpty>}
+                {user?.equipped_badge || <SlotEmpty>No badge equipped</SlotEmpty>}
+              </SlotContent>
+            </EquipmentSlot>
+            <EquipmentSlot>
+              <SlotLabel>🖼️ Avatar Frame</SlotLabel>
+              <SlotContent>
+                {user?.equipped_avatar_frame || <SlotEmpty>No frame equipped</SlotEmpty>}
               </SlotContent>
             </EquipmentSlot>
           </EquipmentGrid>

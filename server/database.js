@@ -8,7 +8,7 @@ class Database {
   }
 
   init() {
-    // Users table - updated with level system
+    // Users table - updated with level system and 3-slot equipment
     this.db.run(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +24,10 @@ class Database {
         badges TEXT DEFAULT '[]',
         level INTEGER DEFAULT 1,
         experience INTEGER DEFAULT 0,
-        unlocked_achievements TEXT DEFAULT '[]'
+        unlocked_achievements TEXT DEFAULT '[]',
+        equipped_theme TEXT DEFAULT NULL,
+        equipped_badge TEXT DEFAULT NULL,
+        equipped_avatar_frame TEXT DEFAULT NULL
       )
     `);
 
@@ -129,27 +132,30 @@ class Database {
     // Insert default data
     this.insertDefaultStoreItems();
     this.insertDefaultAchievements();
+    
+    // Migrate existing users table to include equipment slots
+    this.migrateEquipmentSlots();
   }
 
   insertDefaultStoreItems() {
     const defaultItems = [
-      // Skins
-      { name: 'Fire Theme', type: 'skin', price: 100, description: 'Hot red and orange theme', image_url: '/skins/fire.jpg', level_required: 1 },
-      { name: 'Ocean Theme', type: 'skin', price: 150, description: 'Cool blue ocean vibes', image_url: '/skins/ocean.jpg', level_required: 3 },
-      { name: 'Dark Mode Pro', type: 'skin', price: 200, description: 'Premium dark theme', image_url: '/skins/dark.jpg', level_required: 5 },
-      { name: 'Neon Glow', type: 'skin', price: 250, description: 'Cyberpunk neon aesthetic', image_url: '/skins/neon.jpg', level_required: 10 },
+      // Themes (affect check-in button and overall UI theming)
+      { name: 'Fire Theme', type: 'theme', price: 100, description: 'Hot red and orange check-in theme', image_url: '/themes/fire.jpg', level_required: 1 },
+      { name: 'Ocean Theme', type: 'theme', price: 150, description: 'Cool blue ocean check-in vibes', image_url: '/themes/ocean.jpg', level_required: 3 },
+      { name: 'Dark Mode Pro', type: 'theme', price: 200, description: 'Premium dark check-in theme', image_url: '/themes/dark.jpg', level_required: 5 },
+      { name: 'Neon Glow', type: 'theme', price: 250, description: 'Cyberpunk neon check-in aesthetic', image_url: '/themes/neon.jpg', level_required: 10 },
       
-      // Badges
-      { name: '🔥 Hot Streak', type: 'badge', price: 50, description: 'For the dedicated', image_url: '/badges/hot.png', level_required: 1 },
-      { name: '👑 King', type: 'badge', price: 300, description: 'Royal status', image_url: '/badges/king.png', level_required: 15 },
-      { name: '💎 Diamond', type: 'badge', price: 500, description: 'Premium member', image_url: '/badges/diamond.png', level_required: 20 },
-      { name: '🚀 Rocket', type: 'badge', price: 150, description: 'Sky high performance', image_url: '/badges/rocket.png', level_required: 8 },
-      { name: '⚡ Lightning', type: 'badge', price: 100, description: 'Quick and frequent', image_url: '/badges/lightning.png', level_required: 5 },
+      // Badges (affect your badge/avatar appearance)
+      { name: '🔥 Hot Streak', type: 'badge', price: 50, description: 'For the dedicated crankers', image_url: '/badges/hot.png', level_required: 1 },
+      { name: '👑 King', type: 'badge', price: 300, description: 'Royal status symbol', image_url: '/badges/king.png', level_required: 15 },
+      { name: '💎 Diamond', type: 'badge', price: 500, description: 'Premium member badge', image_url: '/badges/diamond.png', level_required: 20 },
+      { name: '🚀 Rocket', type: 'badge', price: 150, description: 'Sky high performance badge', image_url: '/badges/rocket.png', level_required: 8 },
+      { name: '⚡ Lightning', type: 'badge', price: 100, description: 'Quick and electric badge', image_url: '/badges/lightning.png', level_required: 5 },
 
-      // Profile customization items
-      { name: 'Golden Border', type: 'avatar', price: 200, description: 'Luxurious golden profile border', image_url: '/avatars/golden.png', level_required: 12 },
-      { name: 'Neon Border', type: 'avatar', price: 180, description: 'Glowing neon profile border', image_url: '/avatars/neon.png', level_required: 8 },
-      { name: 'Royal Purple', type: 'theme', price: 400, description: 'Elegant purple color scheme', image_url: '/themes/purple.jpg', level_required: 18 }
+      // Avatar Frames (affect the border around your badge/avatar)
+      { name: 'Golden Border', type: 'avatar_frame', price: 200, description: 'Luxurious golden profile border', image_url: '/avatars/golden.png', level_required: 12 },
+      { name: 'Neon Outline', type: 'avatar_frame', price: 180, description: 'Glowing neon profile border', image_url: '/avatars/neon.png', level_required: 8 },
+      { name: 'Silver Frame', type: 'avatar_frame', price: 150, description: 'Elegant silver frame', image_url: '/avatars/silver.png', level_required: 6 }
     ];
 
     defaultItems.forEach(item => {
@@ -632,6 +638,27 @@ class Database {
         if (err) reject(err);
         else resolve(rows);
       });
+    });
+  }
+
+  migrateEquipmentSlots() {
+    // Add equipment columns to existing users table if they don't exist
+    this.db.run(`ALTER TABLE users ADD COLUMN equipped_theme TEXT DEFAULT NULL`, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.error('Failed to add equipped_theme column:', err);
+      }
+    });
+    
+    this.db.run(`ALTER TABLE users ADD COLUMN equipped_badge TEXT DEFAULT NULL`, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.error('Failed to add equipped_badge column:', err);
+      }
+    });
+    
+    this.db.run(`ALTER TABLE users ADD COLUMN equipped_avatar_frame TEXT DEFAULT NULL`, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.error('Failed to add equipped_avatar_frame column:', err);
+      }
     });
   }
 }

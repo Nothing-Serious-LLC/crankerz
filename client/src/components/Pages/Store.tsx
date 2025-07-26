@@ -318,14 +318,21 @@ export const Store: React.FC = () => {
   };
 
   const handleEquip = async (itemId: string, itemType: string) => {
-    // For now, just update the user's active skin client-side
-    // In a real app, this would be an API call
+    // Update user's equipped items for the 3-slot system
     if (user) {
       const updatedUser = { ...user };
       const item = items.find(i => i.id.toString() === itemId);
       if (item) {
-        if (item.type === 'skin' || item.type === 'theme') {
-          updatedUser.active_skin = item.name;
+        switch (item.type) {
+          case 'theme':
+            updatedUser.equipped_theme = item.name;
+            break;
+          case 'badge':
+            updatedUser.equipped_badge = item.name;
+            break;
+          case 'avatar_frame':
+            updatedUser.equipped_avatar_frame = item.name;
+            break;
         }
         updateUser(updatedUser);
       }
@@ -339,15 +346,12 @@ export const Store: React.FC = () => {
 
   const isItemEquipped = (item: StoreItem) => {
     switch (item.type) {
-      case 'skin':
       case 'theme':
-        return user?.active_skin === item.name;
+        return user?.equipped_theme === item.name;
       case 'badge':
-        const userBadges = user?.badges ? JSON.parse(user.badges) : [];
-        return userBadges.includes(item.name);
-      case 'avatar':
-        // For now, no active_avatar field exists, so return false
-        return false;
+        return user?.equipped_badge === item.name;
+      case 'avatar_frame':
+        return user?.equipped_avatar_frame === item.name;
       default:
         return false;
     }

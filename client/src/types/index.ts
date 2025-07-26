@@ -17,6 +17,9 @@ export interface User {
     percentage: number;
   };
   unlocked_achievements: string;
+  equipped_theme?: string;
+  equipped_badge?: string;
+  equipped_avatar_frame?: string;
 }
 
 export interface AuthResponse {
@@ -35,7 +38,7 @@ export interface LeaderboardEntry {
 export interface StoreItem {
   id: number;
   name: string;
-  type: 'skin' | 'badge' | 'avatar' | 'theme';
+  type: 'theme' | 'badge' | 'avatar_frame';
   price: number;
   description: string;
   image_url: string;

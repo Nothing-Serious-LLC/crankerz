@@ -361,12 +361,18 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
   };
 
   const getProfileAvatar = () => {
-    // Check if user has a custom avatar from store purchases
-    // For now, show first letter of username or default icon
-    const badges = getBadges();
+    // Show equipped badge or first letter of username
+    if (user?.equipped_badge) {
+      // Extract emoji from badge name (first character if it's an emoji)
+      const badgeEmoji = user.equipped_badge.charAt(0);
+      // Check if it's an emoji by checking Unicode ranges
+      const emojiRegex = /[\u1F600-\u1F64F]|[\u1F300-\u1F5FF]|[\u1F680-\u1F6FF]|[\u1F1E0-\u1F1FF]|[\u2600-\u26FF]|[\u2700-\u27BF]/;
+      if (badgeEmoji.length > 0 && emojiRegex.test(badgeEmoji)) {
+        return badgeEmoji;
+      }
+    }
     
-    // If user has special avatar purchases, show those
-    // For now, show first letter of username with gradient based on level
+    // Fallback to first letter of username
     if (user?.username) {
       return user.username.charAt(0).toUpperCase();
     }
@@ -374,9 +380,34 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
   };
 
   const getAvatarStyle = () => {
-    // Customize avatar appearance based on user level or purchases
-    const level = user?.level || 1;
+    // Check for equipped avatar frame first
+    if (user?.equipped_avatar_frame) {
+      switch (user.equipped_avatar_frame) {
+        case 'Golden Border':
+          return 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)';
+        case 'Silver Frame':
+          return 'linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%)';
+        case 'Bronze Ring':
+          return 'linear-gradient(135deg, #CD7F32 0%, #B87333 100%)';
+        case 'Neon Outline':
+          return 'linear-gradient(135deg, #ff00ff 0%, #00ffff 100%)';
+        case 'Fire Ring':
+          return 'linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%)';
+        case 'Ice Crown':
+          return 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)';
+        case 'Rainbow Arc':
+          return 'linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 25%, #45b7d1 50%, #96ceb4 75%, #feca57 100%)';
+        case 'Dragon Scale':
+          return 'linear-gradient(135deg, #2c3e50 0%, #3498db 100%)';
+        case 'Space Halo':
+          return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        case 'Diamond Crust':
+          return 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)';
+      }
+    }
     
+    // Fallback to level-based styling
+    const level = user?.level || 1;
     if (level >= 20) {
       return 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'; // Gold
     } else if (level >= 10) {
@@ -415,7 +446,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentTab, onTabChang
   };
 
   return (
-    <LayoutContainer skin={user?.active_skin}>      
+    <LayoutContainer skin={user?.equipped_theme}>      
       <Header role="banner">
         <Logo>Crankerz</Logo>
         <UserInfo>

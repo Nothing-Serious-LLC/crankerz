@@ -22,26 +22,19 @@ const setStorageItem = (key: string, value: any) => {
 // Mock data initialization
 const initializeMockData = () => {
   if (!getStorageItem('crankerz_initialized')) {
-    // Initialize expanded store items
+    // Initialize 3-slot equipment store items
     const defaultStoreItems: StoreItem[] = [
-      // === SKINS/THEMES ===
-      { id: 1, name: 'Fire Theme', type: 'skin', price: 100, description: 'Hot red and orange gradients', image_url: '/skins/fire.jpg', level_required: 1, created_at: new Date().toISOString() },
-      { id: 2, name: 'Ocean Theme', type: 'skin', price: 150, description: 'Cool blue ocean vibes', image_url: '/skins/ocean.jpg', level_required: 3, created_at: new Date().toISOString() },
-      { id: 3, name: 'Dark Mode Pro', type: 'skin', price: 200, description: 'Sleek dark professional theme', image_url: '/skins/dark.jpg', level_required: 5, created_at: new Date().toISOString() },
-      { id: 4, name: 'Neon Glow', type: 'skin', price: 250, description: 'Cyberpunk neon aesthetics', image_url: '/skins/neon.jpg', level_required: 8, created_at: new Date().toISOString() },
-      { id: 5, name: 'Forest Theme', type: 'skin', price: 175, description: 'Natural green forest vibes', image_url: '/skins/forest.jpg', level_required: 4, created_at: new Date().toISOString() },
-      { id: 6, name: 'Sunset Glow', type: 'skin', price: 300, description: 'Warm orange-pink sunset gradients', image_url: '/skins/sunset.jpg', level_required: 10, created_at: new Date().toISOString() },
-      { id: 7, name: 'Ice Crystal', type: 'skin', price: 225, description: 'Cool ice blue crystalline theme', image_url: '/skins/ice.jpg', level_required: 6, created_at: new Date().toISOString() },
-      { id: 8, name: 'Cosmic Purple', type: 'skin', price: 400, description: 'Deep space purple nebula theme', image_url: '/skins/cosmic.jpg', level_required: 15, created_at: new Date().toISOString() },
-      { id: 9, name: 'Cherry Blossom', type: 'skin', price: 350, description: 'Soft pink sakura theme', image_url: '/skins/cherry.jpg', level_required: 12, created_at: new Date().toISOString() },
-      { id: 10, name: 'Midnight Black', type: 'skin', price: 500, description: 'Ultimate black premium theme', image_url: '/skins/midnight.jpg', level_required: 20, created_at: new Date().toISOString() },
-      
-      // === ADDITIONAL SKINS ===
-      { id: 36, name: 'Lava Flow', type: 'skin', price: 180, description: 'Molten lava red and black theme', image_url: '/skins/lava.jpg', level_required: 7, created_at: new Date().toISOString() },
-      { id: 37, name: 'Electric Blue', type: 'skin', price: 220, description: 'High voltage electric theme', image_url: '/skins/electric.jpg', level_required: 9, created_at: new Date().toISOString() },
-      { id: 38, name: 'Golden Hour', type: 'skin', price: 320, description: 'Warm golden sunset vibes', image_url: '/skins/golden.jpg', level_required: 14, created_at: new Date().toISOString() },
-      { id: 39, name: 'Matrix Green', type: 'skin', price: 280, description: 'Digital matrix code aesthetic', image_url: '/skins/matrix.jpg', level_required: 11, created_at: new Date().toISOString() },
-      { id: 40, name: 'Rose Gold', type: 'skin', price: 380, description: 'Elegant rose gold luxury theme', image_url: '/skins/rosegold.jpg', level_required: 16, created_at: new Date().toISOString() },
+      // === THEMES (affect check-in button and overall UI theming) ===
+      { id: 1, name: 'Fire Theme', type: 'theme', price: 100, description: 'Hot red and orange check-in button theme', image_url: '/themes/fire.jpg', level_required: 1, created_at: new Date().toISOString() },
+      { id: 2, name: 'Ocean Theme', type: 'theme', price: 150, description: 'Cool blue ocean check-in vibes', image_url: '/themes/ocean.jpg', level_required: 3, created_at: new Date().toISOString() },
+      { id: 3, name: 'Dark Mode Pro', type: 'theme', price: 200, description: 'Sleek dark professional check-in theme', image_url: '/themes/dark.jpg', level_required: 5, created_at: new Date().toISOString() },
+      { id: 4, name: 'Neon Glow', type: 'theme', price: 250, description: 'Cyberpunk neon check-in aesthetics', image_url: '/themes/neon.jpg', level_required: 8, created_at: new Date().toISOString() },
+      { id: 5, name: 'Forest Theme', type: 'theme', price: 175, description: 'Natural green forest check-in vibes', image_url: '/themes/forest.jpg', level_required: 4, created_at: new Date().toISOString() },
+      { id: 6, name: 'Sunset Glow', type: 'theme', price: 300, description: 'Warm orange-pink sunset check-in theme', image_url: '/themes/sunset.jpg', level_required: 10, created_at: new Date().toISOString() },
+      { id: 7, name: 'Ice Crystal', type: 'theme', price: 225, description: 'Cool ice blue crystalline check-in theme', image_url: '/themes/ice.jpg', level_required: 6, created_at: new Date().toISOString() },
+      { id: 8, name: 'Cosmic Purple', type: 'theme', price: 400, description: 'Deep space purple nebula check-in theme', image_url: '/themes/cosmic.jpg', level_required: 15, created_at: new Date().toISOString() },
+      { id: 9, name: 'Cherry Blossom', type: 'theme', price: 350, description: 'Soft pink sakura check-in theme', image_url: '/themes/cherry.jpg', level_required: 12, created_at: new Date().toISOString() },
+      { id: 10, name: 'Midnight Black', type: 'theme', price: 500, description: 'Ultimate black premium check-in theme', image_url: '/themes/midnight.jpg', level_required: 20, created_at: new Date().toISOString() },
 
       // === BADGES ===
       { id: 11, name: '🔥 Hot Streak', type: 'badge', price: 50, description: 'For the dedicated crankers', image_url: '/badges/hot.png', level_required: 1, created_at: new Date().toISOString() },
@@ -62,17 +55,17 @@ const initializeMockData = () => {
       { id: 44, name: '🎨 Artist', type: 'badge', price: 140, description: 'Creative and colorful spirit', image_url: '/badges/artist.png', level_required: 7, created_at: new Date().toISOString() },
       { id: 45, name: '🏴‍☠️ Rebel', type: 'badge', price: 200, description: 'Rules are meant to be broken', image_url: '/badges/rebel.png', level_required: 10, created_at: new Date().toISOString() },
 
-      // === AVATARS ===
-      { id: 21, name: 'Golden Border', type: 'avatar', price: 200, description: 'Luxurious golden profile border', image_url: '/avatars/golden.png', level_required: 12, created_at: new Date().toISOString() },
-      { id: 22, name: 'Silver Frame', type: 'avatar', price: 150, description: 'Elegant silver frame', image_url: '/avatars/silver.png', level_required: 8, created_at: new Date().toISOString() },
-      { id: 23, name: 'Bronze Ring', type: 'avatar', price: 100, description: 'Classic bronze border', image_url: '/avatars/bronze.png', level_required: 5, created_at: new Date().toISOString() },
-      { id: 24, name: 'Neon Outline', type: 'avatar', price: 250, description: 'Glowing neon border effect', image_url: '/avatars/neon.png', level_required: 10, created_at: new Date().toISOString() },
-      { id: 25, name: 'Fire Ring', type: 'avatar', price: 175, description: 'Burning flame border', image_url: '/avatars/fire.png', level_required: 7, created_at: new Date().toISOString() },
-      { id: 26, name: 'Ice Crown', type: 'avatar', price: 300, description: 'Frozen crystal crown frame', image_url: '/avatars/ice.png', level_required: 14, created_at: new Date().toISOString() },
-      { id: 27, name: 'Rainbow Arc', type: 'avatar', price: 225, description: 'Colorful rainbow border', image_url: '/avatars/rainbow.png', level_required: 11, created_at: new Date().toISOString() },
-      { id: 28, name: 'Dragon Scale', type: 'avatar', price: 400, description: 'Mythical dragon scale frame', image_url: '/avatars/dragon.png', level_required: 16, created_at: new Date().toISOString() },
-      { id: 29, name: 'Space Halo', type: 'avatar', price: 350, description: 'Cosmic space ring', image_url: '/avatars/space.png', level_required: 15, created_at: new Date().toISOString() },
-      { id: 30, name: 'Diamond Crust', type: 'avatar', price: 500, description: 'Ultra premium diamond frame', image_url: '/avatars/diamond.png', level_required: 20, created_at: new Date().toISOString() },
+      // === AVATAR FRAMES (affect the border around your badge/avatar) ===
+      { id: 21, name: 'Golden Border', type: 'avatar_frame', price: 200, description: 'Luxurious golden profile border', image_url: '/avatars/golden.png', level_required: 12, created_at: new Date().toISOString() },
+      { id: 22, name: 'Silver Frame', type: 'avatar_frame', price: 150, description: 'Elegant silver frame', image_url: '/avatars/silver.png', level_required: 8, created_at: new Date().toISOString() },
+      { id: 23, name: 'Bronze Ring', type: 'avatar_frame', price: 100, description: 'Classic bronze border', image_url: '/avatars/bronze.png', level_required: 5, created_at: new Date().toISOString() },
+      { id: 24, name: 'Neon Outline', type: 'avatar_frame', price: 250, description: 'Glowing neon border effect', image_url: '/avatars/neon.png', level_required: 10, created_at: new Date().toISOString() },
+      { id: 25, name: 'Fire Ring', type: 'avatar_frame', price: 175, description: 'Burning flame border', image_url: '/avatars/fire.png', level_required: 7, created_at: new Date().toISOString() },
+      { id: 26, name: 'Ice Crown', type: 'avatar_frame', price: 300, description: 'Frozen crystal crown frame', image_url: '/avatars/ice.png', level_required: 14, created_at: new Date().toISOString() },
+      { id: 27, name: 'Rainbow Arc', type: 'avatar_frame', price: 225, description: 'Colorful rainbow border', image_url: '/avatars/rainbow.png', level_required: 11, created_at: new Date().toISOString() },
+      { id: 28, name: 'Dragon Scale', type: 'avatar_frame', price: 400, description: 'Mythical dragon scale frame', image_url: '/avatars/dragon.png', level_required: 16, created_at: new Date().toISOString() },
+      { id: 29, name: 'Space Halo', type: 'avatar_frame', price: 350, description: 'Cosmic space ring', image_url: '/avatars/space.png', level_required: 15, created_at: new Date().toISOString() },
+      { id: 30, name: 'Diamond Crust', type: 'avatar_frame', price: 500, description: 'Ultra premium diamond frame', image_url: '/avatars/diamond.png', level_required: 20, created_at: new Date().toISOString() },
 
       // === SPECIAL THEMES ===
       { id: 31, name: 'Retro Wave', type: 'theme', price: 300, description: '80s synthwave aesthetic', image_url: '/themes/retro.jpg', level_required: 13, created_at: new Date().toISOString() },

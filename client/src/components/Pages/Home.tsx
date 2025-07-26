@@ -638,7 +638,7 @@ export const Home: React.FC = () => {
   return (
     <HomeContainer>
       {/* Level Pill */}
-      <LevelPill skin={user?.active_skin}>
+      <LevelPill skin={user?.equipped_theme}>
         <LevelNumber>Level {user?.level || 1}</LevelNumber>
         <ExperienceInfo>{user?.experience || 0} XP</ExperienceInfo>
         
@@ -660,7 +660,7 @@ export const Home: React.FC = () => {
           <MotivationalText>{getMotivationalMessage()}</MotivationalText>
           
           <CheckInButton
-            skin={user?.active_skin}
+            skin={user?.equipped_theme}
             onMouseDown={startHold}
             onTouchStart={startHold}
             onMouseUp={cancelHold}
