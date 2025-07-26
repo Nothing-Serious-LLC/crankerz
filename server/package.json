@@ -1,7 +1,7 @@
 {
-  "name": "fap-tracker-server",
+  "name": "crankerz-server",
   "version": "1.0.0",
-  "description": "Backend API for fap tracker",
+  "description": "Backend API for Crankerz",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",

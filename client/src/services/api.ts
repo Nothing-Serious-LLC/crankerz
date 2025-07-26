@@ -32,6 +32,14 @@ export const userAPI = {
   getProfile: async (): Promise<User> => {
     return mockUserAPI.getProfile();
   },
+
+  updateEquipment: async (equipment: {
+    equipped_theme?: string;
+    equipped_badge?: string;
+    equipped_avatar_frame?: string;
+  }): Promise<User> => {
+    return mockUserAPI.updateEquipment(equipment);
+  },
 };
 
 // Session API

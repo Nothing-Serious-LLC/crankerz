@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
-import { analyticsAPI, friendsAPI, storeAPI } from '../../services/api';
+import { analyticsAPI, friendsAPI, storeAPI, userAPI } from '../../services/api';
 import { Analytics as AnalyticsData, StoreItem } from '../../types';
 import Icon from '@mdi/react';
 import { 
@@ -439,19 +439,13 @@ export const Profile: React.FC = () => {
 
   const handleEquipItem = async (item: StoreItem) => {
     if (user) {
-      const updatedUser = { ...user };
-      switch (item.type) {
-        case 'theme':
-          updatedUser.equipped_theme = item.name;
-          break;
-        case 'badge':
-          updatedUser.equipped_badge = item.name;
-          break;
-        case 'avatar_frame':
-          updatedUser.equipped_avatar_frame = item.name;
-          break;
-      }
-      updateUser(updatedUser);
+      const equipment: any = {};
+      if (item.type === 'theme') equipment.equipped_theme = item.name;
+      if (item.type === 'badge') equipment.equipped_badge = item.name;
+      if (item.type === 'avatar_frame') equipment.equipped_avatar_frame = item.name;
+
+      const updated = await userAPI.updateEquipment(equipment);
+      updateUser(updated);
     }
   };
 

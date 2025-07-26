@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 
 class Database {
   constructor() {
-    this.db = new sqlite3.Database('./fap_tracker.db');
+    this.db = new sqlite3.Database('./crankerz.db');
     this.init();
   }
 

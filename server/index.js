@@ -539,7 +539,7 @@ process.on('SIGINT', () => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 FapTracker Server running on port ${PORT}`);
+  console.log(`🚀 Crankerz Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${NODE_ENV}`);
   console.log(`🔗 CORS Origin: ${CORS_ORIGIN}`);
   console.log(`🔑 JWT Secret: ${JWT_SECRET ? 'Configured' : 'Using fallback'}`);

@@ -215,6 +215,30 @@ export const mockUserAPI = {
 
     return user;
   },
+
+  updateEquipment: async (equipment: {
+    equipped_theme?: string;
+    equipped_badge?: string;
+    equipped_avatar_frame?: string;
+  }): Promise<User> => {
+    await delay(150);
+    const user = getStorageItem('crankerz_current_user');
+    if (!user) throw new Error('User not found');
+    if (equipment.equipped_theme !== undefined) user.equipped_theme = equipment.equipped_theme;
+    if (equipment.equipped_badge !== undefined) user.equipped_badge = equipment.equipped_badge;
+    if (equipment.equipped_avatar_frame !== undefined) user.equipped_avatar_frame = equipment.equipped_avatar_frame;
+
+    // Persist to storage
+    setStorageItem('crankerz_current_user', user);
+    const users = getStorageItem('crankerz_users', []);
+    const idx = users.findIndex((u: User) => u.id === user.id);
+    if (idx !== -1) {
+      users[idx] = user;
+      setStorageItem('crankerz_users', users);
+    }
+
+    return user;
+  },
 };
 
 // Mock Session API

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { storeAPI } from '../../services/api';
 import { StoreItem } from '../../types';
 import { GlassCard } from '../Common/GlassCard';
+import { userAPI } from '../../services/api';
 
 const StoreContainer = styled.div`
   display: flex;
@@ -320,21 +321,15 @@ export const Store: React.FC = () => {
   const handleEquip = async (itemId: string, itemType: string) => {
     // Update user's equipped items for the 3-slot system
     if (user) {
-      const updatedUser = { ...user };
       const item = items.find(i => i.id.toString() === itemId);
       if (item) {
-        switch (item.type) {
-          case 'theme':
-            updatedUser.equipped_theme = item.name;
-            break;
-          case 'badge':
-            updatedUser.equipped_badge = item.name;
-            break;
-          case 'avatar_frame':
-            updatedUser.equipped_avatar_frame = item.name;
-            break;
-        }
-        updateUser(updatedUser);
+        const equipment: any = {};
+        if (item.type === 'theme') equipment.equipped_theme = item.name;
+        if (item.type === 'badge') equipment.equipped_badge = item.name;
+        if (item.type === 'avatar_frame') equipment.equipped_avatar_frame = item.name;
+
+        const updated = await userAPI.updateEquipment(equipment);
+        updateUser(updated);
       }
     }
   };
